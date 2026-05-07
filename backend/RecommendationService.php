@@ -23,6 +23,12 @@ final class RecommendationService
         'Low' => ['Fixed Plan', 'Retirement/Income Plan'],
     ];
 
+    private const HORIZON_MONTHS = [
+        'Short' => 12,
+        'Medium' => 36,
+        'Long' => 60,
+    ];
+
     public static function recommend(array $input, int $age): array
     {
         $banks = Database::connection()
@@ -86,6 +92,25 @@ final class RecommendationService
                 'allows_monthly' => (bool)$bank['allows_monthly'],
                 'score' => $score,
                 'benefits' => $benefits,
+                'duration_months' => self::HORIZON_MONTHS[$bank['horizon']] ?? 12,
+                'estimated_total_value' => self::estimateTotalValue(
+                    (float)$input['investment_amount'],
+                    (float)($input['monthly_amount'] ?? 0),
+                    (float)$bank['expected_return'],
+                    self::HORIZON_MONTHS[$bank['horizon']] ?? 12
+                ),
+                'estimated_profit' => self::estimateProfit(
+                    (float)$input['investment_amount'],
+                    (float)($input['monthly_amount'] ?? 0),
+                    (float)$bank['expected_return'],
+                    self::HORIZON_MONTHS[$bank['horizon']] ?? 12
+                ),
+                'estimated_monthly_growth' => self::estimateMonthlyGrowth(
+                    (float)$input['investment_amount'],
+                    (float)($input['monthly_amount'] ?? 0),
+                    (float)$bank['expected_return'],
+                    self::HORIZON_MONTHS[$bank['horizon']] ?? 12
+                ),
             ];
         }
 
@@ -105,5 +130,37 @@ final class RecommendationService
         }
 
         return ['Fixed Plan', 'Retirement/Income Plan'];
+    }
+
+    private static function estimateTotalValue(float $principal, float $monthlyContribution, float $annualRate, int $months): float
+    {
+        $monthlyRate = $annualRate / 100 / 12;
+        $principalFutureValue = $principal * pow(1 + $monthlyRate, $months);
+        $contributionFutureValue = 0.0;
+
+        if ($monthlyContribution > 0) {
+            if ($monthlyRate == 0.0) {
+                $contributionFutureValue = $monthlyContribution * $months;
+            } else {
+                $contributionFutureValue = $monthlyContribution * ((pow(1 + $monthlyRate, $months) - 1) / $monthlyRate);
+            }
+        }
+
+        return round($principalFutureValue + $contributionFutureValue, 2);
+    }
+
+    private static function estimateProfit(float $principal, float $monthlyContribution, float $annualRate, int $months): float
+    {
+        $contributed = $principal + ($monthlyContribution * $months);
+        return round(self::estimateTotalValue($principal, $monthlyContribution, $annualRate, $months) - $contributed, 2);
+    }
+
+    private static function estimateMonthlyGrowth(float $principal, float $monthlyContribution, float $annualRate, int $months): float
+    {
+        if ($months <= 0) {
+            return 0.0;
+        }
+
+        return round(self::estimateProfit($principal, $monthlyContribution, $annualRate, $months) / $months, 2);
     }
 }

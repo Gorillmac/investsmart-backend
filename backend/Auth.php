@@ -8,6 +8,16 @@ final class Auth
 {
     public static function currentUser(): ?array
     {
+        $tokenPayload = verify_auth_token(read_bearer_token());
+        if ($tokenPayload) {
+            $stmt = Database::connection()->prepare('SELECT * FROM users WHERE id = ? LIMIT 1');
+            $stmt->execute([(int)$tokenPayload['uid']]);
+            $user = $stmt->fetch();
+            if ($user && $user['status'] === 'active') {
+                return $user;
+            }
+        }
+
         start_app_session();
         if (empty($_SESSION['user_id'])) {
             return null;

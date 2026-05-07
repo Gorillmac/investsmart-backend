@@ -25,7 +25,7 @@ function apply_cors(): void
         header('Vary: Origin');
     }
 
-    header('Access-Control-Allow-Headers: Content-Type');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Auth-Token, ngrok-skip-browser-warning');
     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 
     if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
@@ -99,4 +99,65 @@ function clean_user(array $user): array
     unset($user['password_hash']);
     $user['age'] = calculate_age_from_id((string)$user['id_number']);
     return $user;
+}
+
+function base64url_encode(string $value): string
+{
+    return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
+}
+
+function base64url_decode(string $value): string
+{
+    $remainder = strlen($value) % 4;
+    if ($remainder > 0) {
+        $value .= str_repeat('=', 4 - $remainder);
+    }
+
+    return base64_decode(strtr($value, '-_', '+/')) ?: '';
+}
+
+function issue_auth_token(array $user): string
+{
+    $payload = [
+        'uid' => (int)$user['id'],
+        'exp' => time() + (60 * 60 * 12),
+    ];
+    $payloadEncoded = base64url_encode(json_encode($payload));
+    $signature = hash_hmac('sha256', $payloadEncoded, APP_KEY);
+    return $payloadEncoded . '.' . $signature;
+}
+
+function read_bearer_token(): ?string
+{
+    $directHeader = $_SERVER['HTTP_X_AUTH_TOKEN'] ?? '';
+    if ($directHeader !== '') {
+        return trim($directHeader);
+    }
+
+    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if (preg_match('/Bearer\s+(.+)/i', $header, $matches) !== 1) {
+        return null;
+    }
+
+    return trim($matches[1]);
+}
+
+function verify_auth_token(?string $token): ?array
+{
+    if (!$token || !str_contains($token, '.')) {
+        return null;
+    }
+
+    [$payloadEncoded, $signature] = explode('.', $token, 2);
+    $expected = hash_hmac('sha256', $payloadEncoded, APP_KEY);
+    if (!hash_equals($expected, $signature)) {
+        return null;
+    }
+
+    $payload = json_decode(base64url_decode($payloadEncoded), true);
+    if (!is_array($payload) || empty($payload['uid']) || empty($payload['exp']) || (int)$payload['exp'] < time()) {
+        return null;
+    }
+
+    return $payload;
 }

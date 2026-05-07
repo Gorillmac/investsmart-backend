@@ -61,6 +61,17 @@ CREATE TABLE IF NOT EXISTS investment_plans (
   CONSTRAINT fk_plan_bank FOREIGN KEY (bank_id) REFERENCES banks(id) ON DELETE SET NULL
 );
 
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NULL,
+  action VARCHAR(80) NOT NULL,
+  entity_type VARCHAR(80) NOT NULL,
+  entity_id INT NULL,
+  description VARCHAR(255) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_activity_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
 INSERT INTO banks (name, contact_info, website, plan_type, expected_return, risk, liquidity, horizon, allows_monthly, details) VALUES
 ('Standard Bank', 'investments@standardbank.co.za | 0860 123 000', 'https://www.standardbank.co.za', 'Fixed Plan', 7.20, 'Low', 'Low', 'Short', 0, 'Fixed-term investment option for users who prefer capital stability and predictable returns.'),
 ('FNB', 'invest@fnb.co.za | 087 575 9404', 'https://www.fnb.co.za', 'Flexi Plan', 8.35, 'Low', 'High', 'Short', 1, 'Flexible savings and investment access with recurring contribution support.'),

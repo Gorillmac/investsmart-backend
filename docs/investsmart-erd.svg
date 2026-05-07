@@ -1,0 +1,120 @@
+<svg width="1600" height="980" viewBox="0 0 1600 980" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #f5f7fb; }
+      .entity { fill: #ffffff; stroke: #172235; stroke-width: 2; rx: 8; }
+      .header { fill: #172235; rx: 8; }
+      .title { font: 700 20px 'Segoe UI', Arial, sans-serif; fill: #ffffff; }
+      .field { font: 14px 'Segoe UI', Arial, sans-serif; fill: #18212f; }
+      .note { font: 13px 'Segoe UI', Arial, sans-serif; fill: #485469; }
+      .label { font: 700 15px 'Segoe UI', Arial, sans-serif; fill: #0f8b8d; }
+      .line { stroke: #0f8b8d; stroke-width: 3; fill: none; }
+      .legend { fill: #ffffff; stroke: #dfe5ec; stroke-width: 1.5; rx: 8; }
+      .legend-title { font: 700 16px 'Segoe UI', Arial, sans-serif; fill: #172235; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f8b8d"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="980"/>
+  <text x="800" y="44" text-anchor="middle" style="font: 700 30px 'Segoe UI', Arial, sans-serif; fill: #172235;">InvestSmart ERD</text>
+  <text x="800" y="72" text-anchor="middle" class="note">Three-tier financial recommendation system database model</text>
+
+  <!-- USERS -->
+  <rect class="entity" x="80" y="120" width="360" height="290"/>
+  <rect class="header" x="80" y="120" width="360" height="44"/>
+  <text class="title" x="260" y="149" text-anchor="middle">USERS</text>
+  <text class="field" x="102" y="190">PK  id : INT</text>
+  <text class="field" x="102" y="216">full_name : VARCHAR(120)</text>
+  <text class="field" x="102" y="242">surname : VARCHAR(120)</text>
+  <text class="field" x="102" y="268">UK  id_number : VARCHAR(20)</text>
+  <text class="field" x="102" y="294">UK  email : VARCHAR(180)</text>
+  <text class="field" x="102" y="320">password_hash : VARCHAR(255)</text>
+  <text class="field" x="102" y="346">role : ENUM('user','admin')</text>
+  <text class="field" x="102" y="372">status : ENUM('active','inactive')</text>
+  <text class="field" x="102" y="398">contact_info : VARCHAR(180)</text>
+  <text class="field" x="102" y="424">created_at : TIMESTAMP</text>
+
+  <!-- FINANCIAL PROFILES -->
+  <rect class="entity" x="530" y="120" width="360" height="250"/>
+  <rect class="header" x="530" y="120" width="360" height="44"/>
+  <text class="title" x="710" y="149" text-anchor="middle">FINANCIAL_PROFILES</text>
+  <text class="field" x="552" y="190">PK  id : INT</text>
+  <text class="field" x="552" y="216">FK, UK  user_id : INT</text>
+  <text class="field" x="552" y="242">gross_salary : DECIMAL(12,2)</text>
+  <text class="field" x="552" y="268">deductions : DECIMAL(12,2)</text>
+  <text class="field" x="552" y="294">monthly_expenses : DECIMAL(12,2)</text>
+  <text class="field" x="552" y="320">current_savings : DECIMAL(12,2)</text>
+  <text class="field" x="552" y="346">net_salary : DECIMAL(12,2)</text>
+  <text class="field" x="552" y="372">updated_at : TIMESTAMP</text>
+
+  <!-- BANKS -->
+  <rect class="entity" x="1110" y="120" width="390" height="290"/>
+  <rect class="header" x="1110" y="120" width="390" height="44"/>
+  <text class="title" x="1305" y="149" text-anchor="middle">BANKS</text>
+  <text class="field" x="1132" y="190">PK  id : INT</text>
+  <text class="field" x="1132" y="216">name : VARCHAR(160)</text>
+  <text class="field" x="1132" y="242">contact_info : VARCHAR(220)</text>
+  <text class="field" x="1132" y="268">website : VARCHAR(220)</text>
+  <text class="field" x="1132" y="294">plan_type : VARCHAR(80)</text>
+  <text class="field" x="1132" y="320">expected_return : DECIMAL(5,2)</text>
+  <text class="field" x="1132" y="346">risk : ENUM('Low','Medium','High')</text>
+  <text class="field" x="1132" y="372">liquidity : ENUM('High','Medium','Low')</text>
+  <text class="field" x="1132" y="398">horizon : ENUM('Short','Medium','Long')</text>
+  <text class="field" x="1132" y="424">allows_monthly : TINYINT(1)</text>
+  <text class="field" x="1132" y="450">details : TEXT</text>
+  <text class="field" x="1132" y="476">created_at : TIMESTAMP</text>
+
+  <!-- INVESTMENT PLANS -->
+  <rect class="entity" x="430" y="490" width="520" height="360"/>
+  <rect class="header" x="430" y="490" width="520" height="44"/>
+  <text class="title" x="690" y="519" text-anchor="middle">INVESTMENT_PLANS</text>
+  <text class="field" x="452" y="560">PK  id : INT</text>
+  <text class="field" x="452" y="586">FK  user_id : INT</text>
+  <text class="field" x="452" y="612">FK  bank_id : INT NULL</text>
+  <text class="field" x="452" y="638">user_plan_name : VARCHAR(160)</text>
+  <text class="field" x="452" y="664">investment_amount : DECIMAL(12,2)</text>
+  <text class="field" x="452" y="690">monthly_contribution : TINYINT(1)</text>
+  <text class="field" x="452" y="716">monthly_amount : DECIMAL(12,2)</text>
+  <text class="field" x="452" y="742">investment_goal : VARCHAR(255)</text>
+  <text class="field" x="452" y="768">risk : ENUM('Low','Medium','High')</text>
+  <text class="field" x="452" y="794">liquidity : ENUM('High','Medium','Low')</text>
+  <text class="field" x="452" y="820">horizon : ENUM('Short','Medium','Long')</text>
+  <text class="field" x="452" y="846">expected_return : DECIMAL(5,2)</text>
+  <text class="field" x="452" y="872">score : INT</text>
+  <text class="field" x="452" y="898">created_at / updated_at : TIMESTAMP</text>
+
+  <!-- ACTIVITY LOGS -->
+  <rect class="entity" x="1060" y="540" width="400" height="250"/>
+  <rect class="header" x="1060" y="540" width="400" height="44"/>
+  <text class="title" x="1260" y="569" text-anchor="middle">ACTIVITY_LOGS</text>
+  <text class="field" x="1082" y="610">PK  id : INT</text>
+  <text class="field" x="1082" y="636">FK  user_id : INT NULL</text>
+  <text class="field" x="1082" y="662">action : VARCHAR(80)</text>
+  <text class="field" x="1082" y="688">entity_type : VARCHAR(80)</text>
+  <text class="field" x="1082" y="714">entity_id : INT NULL</text>
+  <text class="field" x="1082" y="740">description : VARCHAR(255)</text>
+  <text class="field" x="1082" y="766">created_at : TIMESTAMP</text>
+
+  <!-- Relationships -->
+  <path class="line" d="M440 245 C490 245, 490 245, 530 245" marker-end="url(#arrow)"/>
+  <text class="label" x="486" y="230">1 : 1 has</text>
+
+  <path class="line" d="M260 410 C260 500, 420 500, 430 600" marker-end="url(#arrow)"/>
+  <text class="label" x="280" y="500">1 : many creates</text>
+
+  <path class="line" d="M1110 410 C1020 450, 970 500, 950 610" marker-end="url(#arrow)"/>
+  <text class="label" x="980" y="460">1 : many linked to</text>
+
+  <path class="line" d="M440 340 C860 340, 860 650, 1060 650" marker-end="url(#arrow)"/>
+  <text class="label" x="845" y="325">1 : many generates</text>
+
+  <!-- Legend -->
+  <rect class="legend" x="80" y="870" width="420" height="82"/>
+  <text class="legend-title" x="100" y="898">Legend</text>
+  <text class="note" x="100" y="924">PK = Primary Key</text>
+  <text class="note" x="240" y="924">FK = Foreign Key</text>
+  <text class="note" x="360" y="924">UK = Unique Key</text>
+  <text class="note" x="100" y="944">Users and admins are stored in the same USERS table using the role field.</text>
+</svg>
