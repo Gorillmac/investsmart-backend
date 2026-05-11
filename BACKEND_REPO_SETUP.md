@@ -1,6 +1,6 @@
 # Backend Repository Setup
 
-**Prepared By:** `[Your Full Name]`  
+  
 **Project:** InvestSmart Backend
 
 Use the following commands in the VS Code terminal to create and push the backend repository.
