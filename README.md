@@ -1,76 +1,191 @@
 # InvestSmart
 
-InvestSmart is a 3-tier financial management web app built with separate frontend assets, a PHP backend API, and a MySQL database.
+InvestSmart is a 3-tier financial recommendation and financial management web application built with:
 
-## Structure
+- Frontend: HTML, CSS, and JavaScript
+- Backend: PHP
+- Database: MySQL / MariaDB
 
-- `public/index.html` - login and registration page
-- `public/dashboard.html`, `profile.html`, `my-finances.html`, `investment-calculator.html`, `my-plans.html`, `my-report.html` - regular user pages
-- `public/admin-dashboard.html`, `admin-users.html`, `admin-providers.html`, `admin-reports.html` - admin pages
-- `public/assets/css/styles.css` - responsive UI styling
-- `public/assets/js/api.js` - shared frontend API/helpers
-- `public/assets/js/auth.js` - login and registration behavior
-- `public/assets/js/user.js` - regular user dashboard, profile, finances, calculator, plans, and report
-- `public/assets/js/admin.js` - admin dashboard, users, banks, and reports
-- `backend/api/index.php` - JSON API endpoints
-- `backend/*.php` - database, auth, helpers, and recommendation logic
-- `database/schema.sql` - MySQL schema and seed data
+The system includes:
 
-## Setup
+- one shared login page for both users and admins
+- financial profile management
+- investment bank recommendation logic
+- saved plans and printable reports
+- admin analytics and exports
+- audit trail logging
 
-1. Create the database and seed data:
+## Project Structure
 
-```sql
-SOURCE C:/Users/Msima/Documents/Codex/2026-05-05/can-you-code/database/schema.sql;
+- `public/` - frontend pages and assets
+- `backend/` - PHP API, authentication, helpers, audit logic, and recommendation service
+- `database/schema.sql` - database schema and seed data
+- `setup.php` - one-time database installer
+- `docs/` - ERD files and report material
+
+## Main Frontend Pages
+
+- `public/index.html`
+- `public/dashboard.html`
+- `public/profile.html`
+- `public/my-finances.html`
+- `public/investment-calculator.html`
+- `public/my-plans.html`
+- `public/my-report.html`
+- `public/admin-dashboard.html`
+- `public/admin-users.html`
+- `public/admin-providers.html`
+- `public/admin-reports.html`
+
+## Main Backend Files
+
+- `backend/api/index.php`
+- `backend/Auth.php`
+- `backend/Audit.php`
+- `backend/Database.php`
+- `backend/RecommendationService.php`
+- `backend/helpers.php`
+- `backend/config.php`
+
+## Local Setup With XAMPP
+
+### 1. Clone the repositories
+
+Backend repository into:
+
+```text
+C:\xampp\htdocs\investsmart
 ```
 
-2. Update database credentials if needed in:
+Frontend repository into:
+
+```text
+C:\xampp\htdocs\investsmart\public
+```
+
+### 2. Start XAMPP
+
+Open the XAMPP Control Panel and start:
+
+- Apache
+- MySQL
+
+### 3. Create the database using the one-time setup file
+
+Open this in the browser:
+
+```text
+http://localhost/investsmart/setup.php
+```
+
+This will:
+
+- create the `investsmart` database
+- create all required tables
+- insert seed banks
+- insert the admin account
+
+### 4. Open the application
+
+Open:
+
+```text
+http://localhost/investsmart/public/index.html
+```
+
+### 5. Local API test
+
+Open:
+
+```text
+http://localhost/investsmart/backend/api/index.php?action=me
+```
+
+Expected response:
+
+```json
+{"ok":true,"user":null}
+```
+
+## Database Configuration
+
+Database settings are defined in:
 
 ```text
 backend/config.php
 ```
 
-3. Serve the project from the workspace root:
+Default local XAMPP values:
 
-```bash
-php -S localhost:8000
+```php
+const DB_HOST = '127.0.0.1';
+const DB_NAME = 'investsmart';
+const DB_USER = 'root';
+const DB_PASS = '';
 ```
 
-4. Open:
+For local XAMPP use, set:
 
-```text
-http://localhost:8000/public/index.html
+```php
+const SESSION_SECURE_COOKIES = false;
 ```
 
-## Hosted Frontend With Local Backend
+For HTTPS tunnels such as ngrok, set:
 
-If the frontend is hosted online but the PHP backend runs from your machine, `localhost` will not work for other people. You need to expose your local PHP backend with a public HTTPS tunnel such as ngrok or Cloudflare Tunnel.
-
-Backend steps:
-
-1. Run the PHP backend locally from the project root.
-2. Expose it using a secure tunnel.
-3. Add your hosted frontend URL to `ALLOWED_ORIGINS` in `backend/config.php`.
-4. Set `SESSION_SECURE_COOKIES` to `true` in `backend/config.php` when using an HTTPS tunnel.
-
-Frontend steps:
-
-1. Set the API base URL to the public tunnel URL plus `/backend/api/index.php`.
-2. You can edit `public/assets/js/env.js`, for example:
-
-```js
-window.INVESTSMART_API_BASE = "https://your-tunnel-url.ngrok-free.app/backend/api/index.php";
+```php
+const SESSION_SECURE_COOKIES = true;
 ```
 
-The frontend and backend must both use HTTPS when the frontend is hosted online, otherwise browsers can block the requests as mixed content.
-
-## Demo Admin
+## Admin Demo Account
 
 - Email: `admin@investsmart.local`
 - Password: `password`
 
+## Hosted Frontend With Local Backend
+
+If the frontend is hosted online but the backend runs on your local XAMPP machine, expose the backend with ngrok.
+
+### Steps
+
+1. Start Apache and MySQL in XAMPP
+2. Run:
+
+```bash
+ngrok http 80
+```
+
+3. Copy the HTTPS ngrok URL
+4. Update:
+
+```text
+public/assets/js/env.js
+```
+
+Example:
+
+```js
+window.INVESTSMART_API_BASE = "https://your-ngrok-url.ngrok-free.dev/investsmart/backend/api/index.php";
+```
+
+5. Add the hosted frontend URL to:
+
+```php
+const ALLOWED_ORIGINS = [
+    'https://your-frontend-domain.vercel.app',
+];
+```
+
+## ERD and Documentation
+
+Included in `docs/`:
+
+- `investsmart-erd.drawio.xml`
+- `investsmart-erd.png`
+- `investsmart-erd.svg`
+- `ERD_WRITEUP.md`
+
 ## Notes
 
-New normal users are forced into `My Finances` after login until they save gross salary, deductions, monthly expenses, and current savings. Net salary is calculated dynamically in the frontend and persisted by the backend.
-
-The investment calculator follows the PDF guidance: it scores stored banks by risk tolerance, time horizon, liquidity preference, monthly contribution compatibility, and age profile, then returns the best bank recommendation with website and contact details. The user can save that recommendation into `My Plans`.
+- Normal users must save financial data before using the calculator, plans, and reports.
+- The calculator recommends the best bank using stored bank criteria such as risk, liquidity, horizon, and monthly contribution support.
+- Admin users manage banks, users, analytics, reports, and exports.
