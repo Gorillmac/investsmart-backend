@@ -1,0 +1,191 @@
+INVESTSMART DATABASE COMMAND PROMPT GUIDE
+=========================================
+
+This guide shows how a student can use Command Prompt to open MySQL from XAMPP,
+select the InvestSmart database, and view the contents of the tables.
+
+IMPORTANT
+---------
+1. Start XAMPP first
+2. Make sure Apache is running
+3. Make sure MySQL is running
+
+
+PART 1: OPEN MYSQL FROM COMMAND PROMPT
+--------------------------------------
+
+Copy and paste this into Command Prompt:
+
+cd C:\xampp\mysql\bin
+mysql -u root
+
+
+PART 2: SELECT THE INVESTSMART DATABASE
+---------------------------------------
+
+After MySQL opens, copy and paste:
+
+USE investsmart;
+
+
+PART 3: SEE ALL TABLES
+----------------------
+
+Copy and paste:
+
+SHOW TABLES;
+
+
+PART 4: VIEW ALL USERS
+----------------------
+
+Copy and paste:
+
+SELECT * FROM users;
+
+
+PART 5: VIEW USERS IN A CLEANER FORMAT
+--------------------------------------
+
+Copy and paste:
+
+SELECT id, full_name, surname, email, role, status, created_at FROM users;
+
+
+PART 6: VIEW ALL FINANCIAL PROFILES
+-----------------------------------
+
+Copy and paste:
+
+SELECT * FROM financial_profiles;
+
+
+PART 7: VIEW ALL BANKS
+----------------------
+
+Copy and paste:
+
+SELECT * FROM banks;
+
+
+PART 8: VIEW ALL INVESTMENT PLANS
+---------------------------------
+
+Copy and paste:
+
+SELECT * FROM investment_plans;
+
+
+PART 9: VIEW ALL ACTIVITY LOGS
+------------------------------
+
+Copy and paste:
+
+SELECT * FROM activity_logs;
+
+
+PART 10: VIEW SAVED PLANS WITH BANK NAMES
+-----------------------------------------
+
+Copy and paste:
+
+SELECT
+  p.id,
+  p.user_plan_name,
+  p.investment_amount,
+  p.monthly_amount,
+  p.investment_goal,
+  p.risk,
+  p.horizon,
+  b.name AS bank_name,
+  b.contact_info,
+  b.website
+FROM investment_plans p
+LEFT JOIN banks b ON b.id = p.bank_id;
+
+
+PART 11: VIEW USERS WITH THEIR FINANCIAL DATA
+---------------------------------------------
+
+Copy and paste:
+
+SELECT
+  u.id,
+  u.full_name,
+  u.surname,
+  u.email,
+  f.gross_salary,
+  f.deductions,
+  f.monthly_expenses,
+  f.current_savings,
+  f.net_salary
+FROM users u
+LEFT JOIN financial_profiles f ON f.user_id = u.id;
+
+
+PART 12: VIEW USERS WITH THEIR SAVED INVESTMENT PLANS
+-----------------------------------------------------
+
+Copy and paste:
+
+SELECT
+  u.full_name,
+  u.surname,
+  p.user_plan_name,
+  p.investment_amount,
+  p.investment_goal,
+  p.risk,
+  p.horizon
+FROM users u
+LEFT JOIN investment_plans p ON p.user_id = u.id
+ORDER BY u.full_name;
+
+
+PART 13: VIEW HOW MANY RECORDS ARE IN EACH TABLE
+------------------------------------------------
+
+Copy and paste:
+
+SELECT COUNT(*) AS total_users FROM users;
+SELECT COUNT(*) AS total_financial_profiles FROM financial_profiles;
+SELECT COUNT(*) AS total_banks FROM banks;
+SELECT COUNT(*) AS total_investment_plans FROM investment_plans;
+SELECT COUNT(*) AS total_activity_logs FROM activity_logs;
+
+
+PART 14: FIND A USER BY EMAIL
+-----------------------------
+
+Copy and paste:
+
+SELECT * FROM users WHERE email = 'admin@investsmart.local';
+
+
+PART 15: EXIT MYSQL
+-------------------
+
+Copy and paste:
+
+exit
+
+
+QUICK FULL FLOW
+---------------
+
+If a student wants the fastest full sequence, copy and paste these one by one:
+
+cd C:\xampp\mysql\bin
+mysql -u root
+USE investsmart;
+SHOW TABLES;
+SELECT id, full_name, surname, email, role, status FROM users;
+SELECT * FROM financial_profiles;
+SELECT * FROM banks;
+SELECT * FROM investment_plans;
+SELECT * FROM activity_logs;
+exit
+
+
+NOTE
+----
+If MySQL does not open, first check that MySQL is running in XAMPP.
