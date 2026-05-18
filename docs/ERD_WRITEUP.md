@@ -1,69 +1,94 @@
 # InvestSmart Entity Relationship Diagram (ERD)
 
-**Project Title:** InvestSmart Financial Recommendation System  
-**Prepared By:** `[Your Full Name]`  
-**Student Number:** `[Your Student Number]`  
-**Course / Module:** `[Course or Module Name]`  
-**Date:** `[Submission Date]`
+## Introduction
 
-## 1. Introduction
+The InvestSmart database is designed as a relational data model for a 3-tier financial recommendation system. The design separates:
 
-The Entity Relationship Diagram (ERD) for the InvestSmart system represents the structure of the database used to support the application. The system follows a 3-tier architecture consisting of:
+- authentication and account control
+- client identity and financial information
+- administrator identity and management responsibilities
+- investment provider data
+- saved investment recommendations
+- audit trail records
 
-- the **presentation layer** for user interaction
-- the **business logic layer** for processing rules and recommendations
-- the **data layer** for storing persistent information in a MySQL database
+This makes the ERD clearer, more normalized, and more professional for academic presentation.
 
-The database design has been structured to support user registration and authentication, financial profile management, bank recommendation logic, investment plan storage, and audit trail monitoring.
+## Core Design Approach
 
-## 2. Overview of Entities
+The model uses a **base user table** for authentication and account status, then extends that table into two role-specific entities:
 
-The InvestSmart database contains five main entities:
+- `clients`
+- `admins`
 
-1. `Users`
-2. `Financial_Profiles`
-3. `Banks`
-4. `Investment_Plans`
-5. `Activity_Logs`
+This means login credentials are stored once in `users`, while business-specific data is stored in the appropriate child entity.
 
-Each entity is described below.
+## Entities
 
-## 3. Entity Descriptions
+### 1. Users
 
-### 3.1 Users
+The `users` table stores common account information for every authenticated person in the system.
 
-The `Users` entity stores all people who access the system, including both normal users and administrators.
-
-**Primary Key:**
+**Primary key**
 - `id`
 
-**Important attributes:**
-- `full_name`
-- `surname`
-- `id_number`
+**Important attributes**
 - `email`
 - `password_hash`
 - `role`
 - `status`
+- `created_at`
+
+This table is used for authentication, authorization, and account control.
+
+### 2. Clients
+
+The `clients` table stores identity information for normal users of the system.
+
+**Primary key**
+- `id`
+
+**Foreign key**
+- `user_id` references `users(id)`
+
+**Important attributes**
+- `full_name`
+- `surname`
+- `id_number`
 - `contact_info`
 - `created_at`
 
-**Constraints:**
-- `id_number` must be unique
-- `email` must be unique
-- `role` distinguishes between `user` and `admin`
+This table is separated from `users` so that client-specific data does not mix with login credentials.
 
-### 3.2 Financial_Profiles
+### 3. Admins
 
-The `Financial_Profiles` entity stores the financial information captured by each user. This data is used by the system to calculate net salary and support investment recommendations.
+The `admins` table stores identity information for administrators.
 
-**Primary Key:**
+**Primary key**
 - `id`
 
-**Foreign Key:**
-- `user_id` references `Users(id)`
+**Foreign key**
+- `user_id` references `users(id)`
 
-**Important attributes:**
+**Important attributes**
+- `full_name`
+- `surname`
+- `employee_code`
+- `contact_info`
+- `created_at`
+
+This table allows admin-specific records to be modeled separately from client records.
+
+### 4. Financial_Profiles
+
+The `financial_profiles` table stores each client’s financial details.
+
+**Primary key**
+- `id`
+
+**Foreign key**
+- `client_id` references `clients(id)`
+
+**Important attributes**
 - `gross_salary`
 - `deductions`
 - `monthly_expenses`
@@ -71,17 +96,19 @@ The `Financial_Profiles` entity stores the financial information captured by eac
 - `net_salary`
 - `updated_at`
 
-**Constraint:**
-- `user_id` is unique, ensuring that each user has only one financial profile
+This entity supports salary calculation and recommendation processing.
 
-### 3.3 Banks
+### 5. Banks
 
-The `Banks` entity stores the banks or investment providers available in the system. The calculator uses this data to recommend the most suitable bank based on the user's selected investment criteria.
+The `banks` table stores investment provider information used by the recommendation engine.
 
-**Primary Key:**
+**Primary key**
 - `id`
 
-**Important attributes:**
+**Foreign key**
+- `created_by_admin_id` references `admins(id)`
+
+**Important attributes**
 - `name`
 - `contact_info`
 - `website`
@@ -94,20 +121,20 @@ The `Banks` entity stores the banks or investment providers available in the sys
 - `details`
 - `created_at`
 
-This entity plays a central role in the recommendation engine because it stores the investment characteristics against which the user input is matched.
+The `website` field stores the direct page where the bank explains its investment offering.
 
-### 3.4 Investment_Plans
+### 6. Investment_Plans
 
-The `Investment_Plans` entity stores the plans saved by users after a recommendation has been generated.
+The `investment_plans` table stores the plans saved by clients after a recommendation is made.
 
-**Primary Key:**
+**Primary key**
 - `id`
 
-**Foreign Keys:**
-- `user_id` references `Users(id)`
-- `bank_id` references `Banks(id)`
+**Foreign keys**
+- `client_id` references `clients(id)`
+- `bank_id` references `banks(id)`
 
-**Important attributes:**
+**Important attributes**
 - `user_plan_name`
 - `investment_amount`
 - `monthly_contribution`
@@ -118,92 +145,88 @@ The `Investment_Plans` entity stores the plans saved by users after a recommenda
 - `horizon`
 - `expected_return`
 - `score`
+- `bank_investment_url`
 - `created_at`
 - `updated_at`
 
-This entity preserves the result of the recommendation process and allows users to view, edit, and delete their saved plans.
+The `bank_investment_url` field stores the exact investment page link used when the recommendation was saved, ensuring the saved plan still points to the correct investment information later.
 
-### 3.5 Activity_Logs
+### 7. Activity_Logs
 
-The `Activity_Logs` entity stores the audit trail for system actions. It records important activities performed by both users and administrators.
+The `activity_logs` table stores the audit trail of actions performed in the system.
 
-**Primary Key:**
+**Primary key**
 - `id`
 
-**Foreign Key:**
-- `user_id` references `Users(id)`
+**Foreign keys**
+- `user_id` references `users(id)`
+- `client_id` references `clients(id)`
+- `admin_id` references `admins(id)`
 
-**Important attributes:**
+**Important attributes**
 - `action`
 - `entity_type`
 - `entity_id`
 - `description`
 - `created_at`
 
-This entity supports accountability, monitoring, and administrative reporting.
+This entity improves accountability, traceability, and reporting.
 
-## 4. Relationships Between Entities
+## Relationships
 
-### 4.1 Users and Financial_Profiles
+### Users to Clients
 
-**Relationship type:** One-to-One  
+**Relationship type:** One-to-One
 
-Each user has one financial profile, and each financial profile belongs to exactly one user.
+Each client account must be linked to exactly one base user account.
 
-This relationship is enforced using the foreign key `user_id` in the `Financial_Profiles` table, which is also defined as unique.
+### Users to Admins
 
-### 4.2 Users and Investment_Plans
+**Relationship type:** One-to-One
 
-**Relationship type:** One-to-Many  
+Each administrator account must be linked to exactly one base user account.
 
-One user can create and save many investment plans, but each investment plan belongs to only one user.
+### Clients to Financial_Profiles
 
-This relationship is implemented through the foreign key `user_id` in the `Investment_Plans` table.
+**Relationship type:** One-to-One
 
-### 4.3 Banks and Investment_Plans
+Each client has one financial profile, and each financial profile belongs to one client.
 
-**Relationship type:** One-to-Many  
+### Clients to Investment_Plans
 
-One bank can be linked to many investment plans, but each investment plan is associated with one bank at a time.
+**Relationship type:** One-to-Many
 
-This relationship is implemented through the foreign key `bank_id` in the `Investment_Plans` table.
+A client can save many investment plans, but each investment plan belongs to one client.
 
-### 4.4 Users and Activity_Logs
+### Admins to Banks
 
-**Relationship type:** One-to-Many  
+**Relationship type:** One-to-Many
 
-One user can generate many activity log records, but each activity log record belongs to one user.
+An administrator can create and maintain many bank records.
 
-This relationship is implemented through the foreign key `user_id` in the `Activity_Logs` table.
+### Banks to Investment_Plans
 
-## 5. Normalization and Design Justification
+**Relationship type:** One-to-Many
 
-The ERD has been designed to reduce redundancy and improve data consistency.
+One bank can be linked to many saved investment plans.
 
-- User personal information is stored separately from financial profile information.
-- Bank recommendation data is stored separately from user-saved investment plans.
-- Audit information is stored in a dedicated logging table.
-- Primary keys uniquely identify each record.
-- Foreign keys maintain referential integrity between related tables.
+### Users / Clients / Admins to Activity_Logs
 
-The design supports the operational requirements of the system while maintaining a clear separation of concerns expected in a relational database used in a 3-tier application.
+**Relationship type:** One-to-Many
 
-## 6. Conclusion
+Audit logs are linked to the authenticated user and, where relevant, the specific client or admin actor involved in the activity.
 
-The InvestSmart ERD provides a structured representation of the database that supports the full functionality of the system. It enables:
+## Professional Design Justification
 
-- secure user and admin management
-- financial data capture
-- bank recommendation processing
-- storage of investment decisions
-- audit trail reporting
+This ERD is more professional because:
 
-The model is suitable for implementation in MySQL and aligns with the functional and structural requirements of the InvestSmart application.
+- authentication data is separated from business identity data
+- client data and admin data are modeled independently
+- financial and investment tables depend on `clients`, not directly on `users`
+- bank maintenance is clearly associated with administrators
+- saved plans preserve the exact investment page URL used during recommendation
+- the audit trail supports both client and admin actions
 
-## 7. ERD Files Included
+## Conclusion
 
-The following ERD files are included in the project:
-
-- [SVG ERD](C:/Users/Msima/Documents/Codex/2026-05-05/can-you-code/docs/investsmart-erd.svg)
-- [PNG ERD](C:/Users/Msima/Documents/Codex/2026-05-05/can-you-code/docs/investsmart-erd.png)
-- [Draw.io XML ERD](C:/Users/Msima/Documents/Codex/2026-05-05/can-you-code/docs/investsmart-erd.drawio.xml)
+The InvestSmart ERD presents a normalized and clearly structured data model appropriate for a 3-tier system. The design improves clarity, role separation, referential integrity, and maintainability while supporting all required business processes in the application.

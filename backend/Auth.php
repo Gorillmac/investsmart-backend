@@ -8,11 +8,10 @@ final class Auth
 {
     public static function currentUser(): ?array
     {
+        $pdo = Database::connection();
         $tokenPayload = verify_auth_token(read_bearer_token());
         if ($tokenPayload) {
-            $stmt = Database::connection()->prepare('SELECT * FROM users WHERE id = ? LIMIT 1');
-            $stmt->execute([(int)$tokenPayload['uid']]);
-            $user = $stmt->fetch();
+            $user = fetch_user_by_id($pdo, (int)$tokenPayload['uid']);
             if ($user && $user['status'] === 'active') {
                 return $user;
             }
@@ -23,10 +22,7 @@ final class Auth
             return null;
         }
 
-        $stmt = Database::connection()->prepare('SELECT * FROM users WHERE id = ? LIMIT 1');
-        $stmt->execute([$_SESSION['user_id']]);
-        $user = $stmt->fetch();
-
+        $user = fetch_user_by_id($pdo, (int)$_SESSION['user_id']);
         if (!$user || $user['status'] !== 'active') {
             session_destroy();
             return null;
@@ -45,10 +41,20 @@ final class Auth
         return $user;
     }
 
+    public static function requireClient(): array
+    {
+        $user = self::requireUser();
+        if ($user['role'] !== 'client' || empty($user['client_id'])) {
+            json_response(['ok' => false, 'message' => 'Client access required.'], 403);
+        }
+
+        return $user;
+    }
+
     public static function requireAdmin(): array
     {
         $user = self::requireUser();
-        if ($user['role'] !== 'admin') {
+        if ($user['role'] !== 'admin' || empty($user['admin_id'])) {
             json_response(['ok' => false, 'message' => 'Admin access required.'], 403);
         }
 

@@ -67,8 +67,12 @@ function money_value(mixed $value): float
     return round((float)$value, 2);
 }
 
-function calculate_age_from_id(string $idNumber): ?int
+function calculate_age_from_id(?string $idNumber): ?int
 {
+    if ($idNumber === null || $idNumber === '') {
+        return null;
+    }
+
     $digits = preg_replace('/\D/', '', $idNumber);
     if (strlen($digits) < 6) {
         return null;
@@ -77,7 +81,6 @@ function calculate_age_from_id(string $idNumber): ?int
     $yy = (int)substr($digits, 0, 2);
     $mm = (int)substr($digits, 2, 2);
     $dd = (int)substr($digits, 4, 2);
-    $currentYear = (int)date('Y');
     $century = ($yy <= (int)date('y')) ? 2000 : 1900;
     $year = $century + $yy;
 
@@ -94,10 +97,49 @@ function calculate_age_from_id(string $idNumber): ?int
     return $birth->diff($today)->y;
 }
 
+function user_select_sql(): string
+{
+    return "
+        SELECT
+            u.id,
+            u.email,
+            u.password_hash,
+            u.role,
+            u.status,
+            u.created_at,
+            c.id AS client_id,
+            a.id AS admin_id,
+            COALESCE(c.full_name, a.full_name) AS full_name,
+            COALESCE(c.surname, a.surname) AS surname,
+            c.id_number,
+            COALESCE(c.contact_info, a.contact_info) AS contact_info,
+            a.employee_code
+        FROM users u
+        LEFT JOIN clients c ON c.user_id = u.id
+        LEFT JOIN admins a ON a.user_id = u.id
+    ";
+}
+
+function fetch_user_by_id(PDO $pdo, int $userId): ?array
+{
+    $stmt = $pdo->prepare(user_select_sql() . ' WHERE u.id = ? LIMIT 1');
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+    return $user ?: null;
+}
+
+function fetch_user_by_email(PDO $pdo, string $email): ?array
+{
+    $stmt = $pdo->prepare(user_select_sql() . ' WHERE u.email = ? LIMIT 1');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+    return $user ?: null;
+}
+
 function clean_user(array $user): array
 {
     unset($user['password_hash']);
-    $user['age'] = calculate_age_from_id((string)$user['id_number']);
+    $user['age'] = calculate_age_from_id($user['id_number'] ?? null);
     return $user;
 }
 

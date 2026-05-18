@@ -30,6 +30,24 @@ function projected_plan_total(array $plan): float
     return round($principalFutureValue + $contributionFutureValue, 2);
 }
 
+function resolve_client_id(PDO $pdo, array $user, ?int $requestedUserId = null): int
+{
+    if ($user['role'] === 'client') {
+        return (int)$user['client_id'];
+    }
+
+    if ($requestedUserId !== null) {
+        $stmt = $pdo->prepare('SELECT id FROM clients WHERE user_id = ? LIMIT 1');
+        $stmt->execute([$requestedUserId]);
+        $clientId = $stmt->fetchColumn();
+        if ($clientId) {
+            return (int)$clientId;
+        }
+    }
+
+    json_response(['ok' => false, 'message' => 'Client record not found.'], 404);
+}
+
 try {
     if ($action === 'register' && $method === 'POST') {
         $data = request_json();
@@ -41,44 +59,49 @@ try {
             json_response(['ok' => false, 'message' => 'Enter a valid email address.'], 422);
         }
 
-        $stmt = $pdo->prepare('INSERT INTO users (full_name, surname, id_number, email, password_hash) VALUES (?, ?, ?, ?, ?)');
+        $pdo->beginTransaction();
+        $stmt = $pdo->prepare('INSERT INTO users (email, password_hash, role, status) VALUES (?, ?, "client", "active")');
         $stmt->execute([
-            trim((string)$data['full_name']),
-            trim((string)$data['surname']),
-            trim((string)$data['id_number']),
             trim((string)$data['email']),
             password_hash((string)$data['password'], PASSWORD_DEFAULT),
         ]);
-
         $userId = (int)$pdo->lastInsertId();
-        Audit::log($userId, 'register', 'user', $userId, 'User account created.');
+
+        $stmt = $pdo->prepare('INSERT INTO clients (user_id, full_name, surname, id_number, contact_info) VALUES (?, ?, ?, ?, ?)');
+        $stmt->execute([
+            $userId,
+            trim((string)$data['full_name']),
+            trim((string)$data['surname']),
+            trim((string)$data['id_number']),
+            trim((string)($data['contact_info'] ?? '')),
+        ]);
+        $clientId = (int)$pdo->lastInsertId();
+        $pdo->commit();
+
+        Audit::log($userId, 'register', 'client', $clientId, 'Client account created.');
         $_SESSION['user_id'] = $userId;
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE id = ? LIMIT 1');
-        $stmt->execute([$userId]);
-        $user = $stmt->fetch();
+        $user = fetch_user_by_id($pdo, $userId);
         json_response(['ok' => true, 'message' => 'Account created.', 'user' => clean_user($user), 'token' => issue_auth_token($user)]);
     }
 
     if ($action === 'login' && $method === 'POST') {
         $data = request_json();
         require_fields($data, ['email', 'password']);
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
-        $stmt->execute([trim((string)$data['email'])]);
-        $user = $stmt->fetch();
+        $user = fetch_user_by_email($pdo, trim((string)$data['email']));
 
         if (!$user || !password_verify((string)$data['password'], $user['password_hash']) || $user['status'] !== 'active') {
             json_response(['ok' => false, 'message' => 'Invalid credentials or inactive account.'], 401);
         }
 
         $_SESSION['user_id'] = (int)$user['id'];
-        Audit::log((int)$user['id'], 'login', 'user', (int)$user['id'], 'User signed in.');
+        Audit::log((int)$user['id'], 'login', $user['role'], (int)($user['client_id'] ?: $user['admin_id'] ?: $user['id']), 'User signed in.');
         json_response(['ok' => true, 'user' => clean_user($user), 'token' => issue_auth_token($user)]);
     }
 
     if ($action === 'logout') {
         $currentUser = Auth::currentUser();
         if ($currentUser) {
-            Audit::log((int)$currentUser['id'], 'logout', 'user', (int)$currentUser['id'], 'User signed out.');
+            Audit::log((int)$currentUser['id'], 'logout', $currentUser['role'], (int)($currentUser['client_id'] ?: $currentUser['admin_id'] ?: $currentUser['id']), 'User signed out.');
         }
         session_destroy();
         json_response(['ok' => true]);
@@ -89,22 +112,32 @@ try {
         if (!$user) {
             json_response(['ok' => true, 'user' => null]);
         }
-        $stmt = $pdo->prepare('SELECT * FROM financial_profiles WHERE user_id = ?');
-        $stmt->execute([$user['id']]);
-        json_response(['ok' => true, 'user' => clean_user($user), 'finance' => $stmt->fetch() ?: null]);
+
+        $finance = null;
+        if ($user['role'] === 'client' && !empty($user['client_id'])) {
+            $stmt = $pdo->prepare('SELECT * FROM financial_profiles WHERE client_id = ?');
+            $stmt->execute([(int)$user['client_id']]);
+            $finance = $stmt->fetch() ?: null;
+        }
+
+        json_response(['ok' => true, 'user' => clean_user($user), 'finance' => $finance]);
     }
 
     if ($action === 'profile' && $method === 'POST') {
         $user = Auth::requireUser();
         $data = request_json();
-        $stmt = $pdo->prepare('UPDATE users SET email = ?, contact_info = ? WHERE id = ?');
-        $stmt->execute([trim((string)$data['email']), trim((string)($data['contact_info'] ?? '')), $user['id']]);
-        Audit::log((int)$user['id'], 'update_profile', 'user', (int)$user['id'], 'Profile details updated.');
+        $pdo->prepare('UPDATE users SET email = ? WHERE id = ?')->execute([trim((string)$data['email']), (int)$user['id']]);
+        if ($user['role'] === 'client') {
+            $pdo->prepare('UPDATE clients SET contact_info = ? WHERE id = ?')->execute([trim((string)($data['contact_info'] ?? '')), (int)$user['client_id']]);
+        } else {
+            $pdo->prepare('UPDATE admins SET contact_info = ? WHERE id = ?')->execute([trim((string)($data['contact_info'] ?? '')), (int)$user['admin_id']]);
+        }
+        Audit::log((int)$user['id'], 'update_profile', $user['role'], (int)($user['client_id'] ?: $user['admin_id']), 'Profile details updated.');
         json_response(['ok' => true, 'message' => 'Profile updated.']);
     }
 
     if ($action === 'finance' && $method === 'POST') {
-        $user = Auth::requireUser();
+        $user = Auth::requireClient();
         $data = request_json();
         $gross = money_value($data['gross_salary'] ?? null);
         $deductions = money_value($data['deductions'] ?? null);
@@ -113,18 +146,18 @@ try {
         $net = max(0, $gross - $deductions - $expenses);
 
         $stmt = $pdo->prepare(
-            'INSERT INTO financial_profiles (user_id, gross_salary, deductions, monthly_expenses, current_savings, net_salary)
+            'INSERT INTO financial_profiles (client_id, gross_salary, deductions, monthly_expenses, current_savings, net_salary)
              VALUES (?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE gross_salary = VALUES(gross_salary), deductions = VALUES(deductions),
              monthly_expenses = VALUES(monthly_expenses), current_savings = VALUES(current_savings), net_salary = VALUES(net_salary)'
         );
-        $stmt->execute([$user['id'], $gross, $deductions, $expenses, $savings, $net]);
-        Audit::log((int)$user['id'], 'save_finance', 'financial_profile', (int)$user['id'], 'Financial profile saved or updated.');
+        $stmt->execute([(int)$user['client_id'], $gross, $deductions, $expenses, $savings, $net]);
+        Audit::log((int)$user['id'], 'save_finance', 'financial_profile', (int)$user['client_id'], 'Financial profile saved or updated.');
         json_response(['ok' => true, 'message' => 'Financial data saved.', 'net_salary' => $net]);
     }
 
     if ($action === 'recommend' && $method === 'POST') {
-        $user = Auth::requireUser();
+        $user = Auth::requireClient();
         $data = request_json();
         require_fields($data, ['plan_name', 'investment_amount', 'horizon', 'risk', 'liquidity', 'investment_goal']);
         $age = calculate_age_from_id((string)$user['id_number']) ?? 30;
@@ -135,25 +168,28 @@ try {
 
     if ($action === 'plans' && $method === 'GET') {
         $user = Auth::requireUser();
-        $ownerId = $user['role'] === 'admin' && isset($_GET['user_id']) ? (int)$_GET['user_id'] : (int)$user['id'];
+        $clientId = resolve_client_id($pdo, $user, isset($_GET['user_id']) ? (int)$_GET['user_id'] : null);
         $stmt = $pdo->prepare(
-            'SELECT p.*, b.name bank_name, b.contact_info bank_contact, b.website bank_website, b.details bank_details
-             FROM investment_plans p LEFT JOIN banks b ON b.id = p.bank_id WHERE p.user_id = ? ORDER BY p.created_at DESC'
+            'SELECT p.*, b.name bank_name, b.contact_info bank_contact, COALESCE(p.bank_investment_url, b.website) bank_website, b.details bank_details
+             FROM investment_plans p
+             LEFT JOIN banks b ON b.id = p.bank_id
+             WHERE p.client_id = ?
+             ORDER BY p.created_at DESC'
         );
-        $stmt->execute([$ownerId]);
+        $stmt->execute([$clientId]);
         json_response(['ok' => true, 'plans' => $stmt->fetchAll()]);
     }
 
     if ($action === 'plans' && $method === 'POST') {
-        $user = Auth::requireUser();
+        $user = Auth::requireClient();
         $data = request_json();
-        require_fields($data, ['bank_id', 'user_plan_name', 'investment_amount', 'risk', 'liquidity', 'horizon', 'expected_return']);
+        require_fields($data, ['bank_id', 'user_plan_name', 'investment_amount', 'risk', 'liquidity', 'horizon', 'expected_return', 'bank_investment_url']);
         $stmt = $pdo->prepare(
-            'INSERT INTO investment_plans (user_id, bank_id, user_plan_name, investment_amount, monthly_contribution, monthly_amount, investment_goal, risk, liquidity, horizon, expected_return, score)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO investment_plans (client_id, bank_id, user_plan_name, investment_amount, monthly_contribution, monthly_amount, investment_goal, risk, liquidity, horizon, expected_return, score, bank_investment_url)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
-            $user['id'],
+            (int)$user['client_id'],
             (int)$data['bank_id'],
             trim((string)$data['user_plan_name']),
             money_value($data['investment_amount']),
@@ -165,6 +201,7 @@ try {
             $data['horizon'],
             money_value($data['expected_return']),
             (int)($data['score'] ?? 0),
+            trim((string)$data['bank_investment_url']),
         ]);
         $planId = (int)$pdo->lastInsertId();
         Audit::log((int)$user['id'], 'save_plan', 'investment_plan', $planId, 'Investment plan saved.');
@@ -172,39 +209,42 @@ try {
     }
 
     if ($action === 'plan' && $method === 'PUT') {
-        $user = Auth::requireUser();
+        $user = Auth::requireClient();
         $data = request_json();
         require_fields($data, ['id', 'user_plan_name', 'investment_amount', 'investment_goal']);
-        $stmt = $pdo->prepare('UPDATE investment_plans SET user_plan_name = ?, investment_amount = ?, investment_goal = ? WHERE id = ? AND user_id = ?');
-        $stmt->execute([trim((string)$data['user_plan_name']), money_value($data['investment_amount']), trim((string)$data['investment_goal']), (int)$data['id'], $user['id']]);
+        $stmt = $pdo->prepare('UPDATE investment_plans SET user_plan_name = ?, investment_amount = ?, investment_goal = ? WHERE id = ? AND client_id = ?');
+        $stmt->execute([trim((string)$data['user_plan_name']), money_value($data['investment_amount']), trim((string)$data['investment_goal']), (int)$data['id'], (int)$user['client_id']]);
         Audit::log((int)$user['id'], 'update_plan', 'investment_plan', (int)$data['id'], 'Investment plan updated.');
         json_response(['ok' => true, 'message' => 'Plan updated.']);
     }
 
     if ($action === 'plan' && $method === 'DELETE') {
-        $user = Auth::requireUser();
+        $user = Auth::requireClient();
         $id = (int)($_GET['id'] ?? 0);
-        $stmt = $pdo->prepare('DELETE FROM investment_plans WHERE id = ? AND user_id = ?');
-        $stmt->execute([$id, $user['id']]);
+        $stmt = $pdo->prepare('DELETE FROM investment_plans WHERE id = ? AND client_id = ?');
+        $stmt->execute([$id, (int)$user['client_id']]);
         Audit::log((int)$user['id'], 'delete_plan', 'investment_plan', $id, 'Investment plan deleted.');
         json_response(['ok' => true, 'message' => 'Plan deleted.']);
     }
 
     if ($action === 'admin-users') {
         Auth::requireAdmin();
-        $rows = $pdo->query('SELECT id, full_name, surname, id_number, email, role, status, contact_info, created_at FROM users ORDER BY created_at DESC')->fetchAll();
+        $rows = $pdo->query(
+            user_select_sql() . ' ORDER BY u.created_at DESC'
+        )->fetchAll();
         foreach ($rows as &$row) {
-            $row['age'] = calculate_age_from_id((string)$row['id_number']);
+            $row['age'] = calculate_age_from_id($row['id_number'] ?? null);
+            $row['user_type'] = $row['role'];
         }
         json_response(['ok' => true, 'users' => $rows]);
     }
 
     if ($action === 'admin-user-status' && $method === 'POST') {
-        Auth::requireAdmin();
+        $admin = Auth::requireAdmin();
         $data = request_json();
         $stmt = $pdo->prepare('UPDATE users SET status = ? WHERE id = ? AND role != "admin"');
         $stmt->execute([$data['status'] === 'inactive' ? 'inactive' : 'active', (int)$data['id']]);
-        Audit::log((int)Auth::requireAdmin()['id'], 'change_user_status', 'user', (int)$data['id'], 'User status changed to ' . ($data['status'] === 'inactive' ? 'inactive' : 'active') . '.');
+        Audit::log((int)$admin['id'], 'change_user_status', 'admin', (int)$admin['admin_id'], 'User status changed.');
         json_response(['ok' => true, 'message' => 'User status updated.']);
     }
 
@@ -213,34 +253,46 @@ try {
         $userId = (int)($_GET['id'] ?? 0);
         $stmt = $pdo->prepare('DELETE FROM users WHERE id = ? AND role != "admin"');
         $stmt->execute([$userId]);
-        Audit::log((int)$admin['id'], 'delete_user', 'user', $userId, 'User deleted by admin.');
+        Audit::log((int)$admin['id'], 'delete_user', 'admin', (int)$admin['admin_id'], 'Client user deleted by admin.');
         json_response(['ok' => true, 'message' => 'User deleted.']);
     }
 
     if ($action === 'admin-user-update' && $method === 'POST') {
-        Auth::requireAdmin();
+        $admin = Auth::requireAdmin();
         $data = request_json();
         require_fields($data, ['id', 'full_name', 'surname', 'email']);
-        $stmt = $pdo->prepare('UPDATE users SET full_name = ?, surname = ?, email = ?, contact_info = ? WHERE id = ?');
-        $stmt->execute([
-            trim((string)$data['full_name']),
-            trim((string)$data['surname']),
-            trim((string)$data['email']),
-            trim((string)($data['contact_info'] ?? '')),
-            (int)$data['id'],
-        ]);
-        Audit::log((int)Auth::requireAdmin()['id'], 'update_user', 'user', (int)$data['id'], 'User record updated by admin.');
+        $target = fetch_user_by_id($pdo, (int)$data['id']);
+        if (!$target) {
+            json_response(['ok' => false, 'message' => 'User not found.'], 404);
+        }
+        $pdo->prepare('UPDATE users SET email = ? WHERE id = ?')->execute([trim((string)$data['email']), (int)$data['id']]);
+        if ($target['role'] === 'client') {
+            $pdo->prepare('UPDATE clients SET full_name = ?, surname = ?, contact_info = ? WHERE id = ?')->execute([
+                trim((string)$data['full_name']),
+                trim((string)$data['surname']),
+                trim((string)($data['contact_info'] ?? '')),
+                (int)$target['client_id'],
+            ]);
+        } else {
+            $pdo->prepare('UPDATE admins SET full_name = ?, surname = ?, contact_info = ? WHERE id = ?')->execute([
+                trim((string)$data['full_name']),
+                trim((string)$data['surname']),
+                trim((string)($data['contact_info'] ?? '')),
+                (int)$target['admin_id'],
+            ]);
+        }
+        Audit::log((int)$admin['id'], 'update_user', 'admin', (int)$admin['admin_id'], 'User record updated by admin.');
         json_response(['ok' => true, 'message' => 'User updated.']);
     }
 
     if ($action === 'admin-reset-password' && $method === 'POST') {
-        Auth::requireAdmin();
+        $admin = Auth::requireAdmin();
         $data = request_json();
         require_fields($data, ['id']);
         $temporary = 'Invest123!';
         $stmt = $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ? AND role != "admin"');
         $stmt->execute([password_hash($temporary, PASSWORD_DEFAULT), (int)$data['id']]);
-        Audit::log((int)Auth::requireAdmin()['id'], 'reset_password', 'user', (int)$data['id'], 'Temporary password issued by admin.');
+        Audit::log((int)$admin['id'], 'reset_password', 'admin', (int)$admin['admin_id'], 'Temporary password issued by admin.');
         json_response(['ok' => true, 'message' => 'Password reset.', 'temporary_password' => $temporary]);
     }
 
@@ -250,17 +302,17 @@ try {
     }
 
     if ($action === 'bank' && in_array($method, ['POST', 'PUT'], true)) {
-        Auth::requireAdmin();
+        $admin = Auth::requireAdmin();
         $data = request_json();
-        require_fields($data, ['name', 'contact_info', 'plan_type', 'expected_return', 'risk', 'liquidity', 'horizon']);
+        require_fields($data, ['name', 'contact_info', 'website', 'plan_type', 'expected_return', 'risk', 'liquidity', 'horizon']);
         if ($method === 'POST') {
-            $stmt = $pdo->prepare('INSERT INTO banks (name, contact_info, website, plan_type, expected_return, risk, liquidity, horizon, allows_monthly, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-            $stmt->execute([$data['name'], $data['contact_info'], $data['website'] ?? '', $data['plan_type'], money_value($data['expected_return']), $data['risk'], $data['liquidity'], $data['horizon'], !empty($data['allows_monthly']) ? 1 : 0, $data['details'] ?? '']);
-            Audit::log((int)Auth::requireAdmin()['id'], 'create_bank', 'bank', (int)$pdo->lastInsertId(), 'Bank created.');
+            $stmt = $pdo->prepare('INSERT INTO banks (name, contact_info, website, plan_type, expected_return, risk, liquidity, horizon, allows_monthly, details, created_by_admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt->execute([$data['name'], $data['contact_info'], $data['website'], $data['plan_type'], money_value($data['expected_return']), $data['risk'], $data['liquidity'], $data['horizon'], !empty($data['allows_monthly']) ? 1 : 0, $data['details'] ?? '', (int)$admin['admin_id']]);
+            Audit::log((int)$admin['id'], 'create_bank', 'admin', (int)$admin['admin_id'], 'Bank created.');
         } else {
             $stmt = $pdo->prepare('UPDATE banks SET name = ?, contact_info = ?, website = ?, plan_type = ?, expected_return = ?, risk = ?, liquidity = ?, horizon = ?, allows_monthly = ?, details = ? WHERE id = ?');
-            $stmt->execute([$data['name'], $data['contact_info'], $data['website'] ?? '', $data['plan_type'], money_value($data['expected_return']), $data['risk'], $data['liquidity'], $data['horizon'], !empty($data['allows_monthly']) ? 1 : 0, $data['details'] ?? '', (int)$data['id']]);
-            Audit::log((int)Auth::requireAdmin()['id'], 'update_bank', 'bank', (int)$data['id'], 'Bank updated.');
+            $stmt->execute([$data['name'], $data['contact_info'], $data['website'], $data['plan_type'], money_value($data['expected_return']), $data['risk'], $data['liquidity'], $data['horizon'], !empty($data['allows_monthly']) ? 1 : 0, $data['details'] ?? '', (int)$data['id']]);
+            Audit::log((int)$admin['id'], 'update_bank', 'admin', (int)$admin['admin_id'], 'Bank updated.');
         }
         json_response(['ok' => true, 'message' => 'Bank saved.']);
     }
@@ -270,23 +322,23 @@ try {
         $bankId = (int)($_GET['id'] ?? 0);
         $stmt = $pdo->prepare('DELETE FROM banks WHERE id = ?');
         $stmt->execute([$bankId]);
-        Audit::log((int)$admin['id'], 'delete_bank', 'bank', $bankId, 'Bank removed.');
+        Audit::log((int)$admin['id'], 'delete_bank', 'admin', (int)$admin['admin_id'], 'Bank removed.');
         json_response(['ok' => true, 'message' => 'Bank removed.']);
     }
 
     if ($action === 'admin-report') {
         Auth::requireAdmin();
-        $userRows = $pdo->query('SELECT id_number FROM users WHERE role = "user"')->fetchAll();
+        $idRows = $pdo->query('SELECT id_number FROM clients')->fetchAll();
         $ages = array_values(array_filter(array_map(
             static fn (array $row): ?int => calculate_age_from_id((string)$row['id_number']),
-            $userRows
+            $idRows
         ), static fn (?int $age): bool => $age !== null));
         $allPlans = $pdo->query('SELECT investment_amount, monthly_amount, expected_return, horizon FROM investment_plans')->fetchAll();
         $projectedPortfolioTotal = array_reduce($allPlans, static fn (float $sum, array $plan): float => $sum + projected_plan_total($plan), 0.0);
         $dominantRisk = $pdo->query('SELECT risk, COUNT(*) total FROM investment_plans GROUP BY risk ORDER BY total DESC LIMIT 1')->fetch();
         $topBank = $pdo->query('SELECT b.name label, COUNT(*) total FROM investment_plans p LEFT JOIN banks b ON b.id = p.bank_id GROUP BY b.name ORDER BY total DESC LIMIT 1')->fetch();
         $metrics = [
-            'total_users' => (int)$pdo->query('SELECT COUNT(*) FROM users WHERE role = "user"')->fetchColumn(),
+            'total_users' => (int)$pdo->query('SELECT COUNT(*) FROM clients')->fetchColumn(),
             'total_savings' => (float)$pdo->query('SELECT COALESCE(SUM(current_savings), 0) FROM financial_profiles')->fetchColumn(),
             'total_plans' => (int)$pdo->query('SELECT COUNT(*) FROM investment_plans')->fetchColumn(),
             'average_plan_amount' => (float)$pdo->query('SELECT COALESCE(AVG(investment_amount), 0) FROM investment_plans')->fetchColumn(),
@@ -316,8 +368,7 @@ try {
                   END
               END AS label,
               COUNT(*) total
-            FROM users
-            WHERE role = 'user'
+            FROM clients
             GROUP BY label
             ORDER BY label
         ")->fetchAll();
@@ -328,9 +379,10 @@ try {
         Auth::requireAdmin();
         $hasActivityTable = (bool)$pdo->query("SHOW TABLES LIKE 'activity_logs'")->fetchColumn();
         $rows = $hasActivityTable ? $pdo->query('
-            SELECT a.*, u.full_name, u.surname
+            SELECT a.*, COALESCE(c.full_name, ad.full_name) AS full_name, COALESCE(c.surname, ad.surname) AS surname
             FROM activity_logs a
-            LEFT JOIN users u ON u.id = a.user_id
+            LEFT JOIN clients c ON c.id = a.client_id
+            LEFT JOIN admins ad ON ad.id = a.admin_id
             ORDER BY a.created_at DESC
             LIMIT 25
         ')->fetchAll() : [];
@@ -344,7 +396,7 @@ try {
             $rows = $pdo->query('SELECT name, contact_info, website, plan_type, expected_return, risk, liquidity, horizon, allows_monthly FROM banks ORDER BY name')->fetchAll();
         } elseif ($type === 'plans') {
             $rows = $pdo->query('
-                SELECT p.user_plan_name, p.investment_amount, p.monthly_amount, p.investment_goal, p.risk, p.liquidity, p.horizon, p.expected_return, b.name AS bank_name
+                SELECT p.user_plan_name, p.investment_amount, p.monthly_amount, p.investment_goal, p.risk, p.liquidity, p.horizon, p.expected_return, p.bank_investment_url, b.name AS bank_name
                 FROM investment_plans p
                 LEFT JOIN banks b ON b.id = p.bank_id
                 ORDER BY p.created_at DESC
@@ -352,19 +404,24 @@ try {
         } elseif ($type === 'activity') {
             $hasActivityTable = (bool)$pdo->query("SHOW TABLES LIKE 'activity_logs'")->fetchColumn();
             $rows = $hasActivityTable ? $pdo->query('
-                SELECT a.action, a.entity_type, a.entity_id, a.description, a.created_at, CONCAT(COALESCE(u.full_name, ""), " ", COALESCE(u.surname, "")) AS actor
+                SELECT a.action, a.entity_type, a.entity_id, a.description, a.created_at, COALESCE(c.full_name, ad.full_name, u.email) AS actor
                 FROM activity_logs a
                 LEFT JOIN users u ON u.id = a.user_id
+                LEFT JOIN clients c ON c.id = a.client_id
+                LEFT JOIN admins ad ON ad.id = a.admin_id
                 ORDER BY a.created_at DESC
             ')->fetchAll() : [];
         } else {
-            $rows = $pdo->query('SELECT full_name, surname, email, id_number, role, status, contact_info, created_at FROM users ORDER BY created_at DESC')->fetchAll();
+            $rows = $pdo->query(user_select_sql() . ' ORDER BY u.created_at DESC')->fetchAll();
         }
         json_response(['ok' => true, 'type' => $type, 'rows' => $rows]);
     }
 
     json_response(['ok' => false, 'message' => 'Unknown endpoint.'], 404);
 } catch (PDOException $exception) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     if ((int)$exception->getCode() === 23000) {
         json_response(['ok' => false, 'message' => 'That ID number or email address is already registered.'], 409);
     }
