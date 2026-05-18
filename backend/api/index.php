@@ -211,7 +211,7 @@ try {
             $user = Auth::requireClient();
             $service = new RecommendationService($pdo);
             $result = $service->recommend($user, $data);
-            response(['ok' => true, 'results' => $result]);
+            response(['ok' => true, 'results' => $result, 'recommendations' => $result]);
 
         case 'plans':
             if ($method === 'GET') {
@@ -290,6 +290,7 @@ try {
 
             error_response('Method not allowed.', 405);
 
+        case 'bank':
         case 'banks':
             if ($method === 'GET') {
                 response(['ok' => true, 'banks' => $pdo->query('SELECT * FROM banks ORDER BY name')->fetchAll()]);
@@ -414,16 +415,37 @@ try {
         case 'admin-reset-password':
             require_method('POST');
             $admin = Auth::requireAdmin();
-            require_fields($data, ['id', 'password']);
+            require_fields($data, ['id']);
+            $temporaryPassword = trim((string)($data['password'] ?? ''));
+            if ($temporaryPassword === '') {
+                $temporaryPassword = 'Invest' . random_int(10000, 99999);
+            }
             $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?')->execute([
-                password_hash((string)$data['password'], PASSWORD_DEFAULT),
+                password_hash($temporaryPassword, PASSWORD_DEFAULT),
                 (int)$data['id'],
             ]);
             Audit::log((int)$admin['id'], 'reset_password', 'admin', (int)$admin['admin_id'], 'Temporary password issued by admin.');
-            response(['ok' => true]);
+            response(['ok' => true, 'temporary_password' => $temporaryPassword]);
 
         case 'admin-report':
             $admin = Auth::requireAdmin();
+
+            $topBank = $pdo->query(
+                'SELECT b.name
+                 FROM banks b
+                 LEFT JOIN investment_plans p ON p.bank_id = b.id
+                 GROUP BY b.id, b.name
+                 ORDER BY COUNT(p.id) DESC, b.name ASC
+                 LIMIT 1'
+            )->fetchColumn() ?: 'N/A';
+
+            $dominantRisk = $pdo->query(
+                'SELECT risk
+                 FROM investment_plans
+                 GROUP BY risk
+                 ORDER BY COUNT(*) DESC
+                 LIMIT 1'
+            )->fetchColumn() ?: 'N/A';
 
             $overview = [
                 'total_users' => (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role = 'client'")->fetchColumn(),
@@ -431,6 +453,9 @@ try {
                 'total_savings' => (float)$pdo->query('SELECT COALESCE(SUM(current_savings), 0) FROM financial_profiles')->fetchColumn(),
                 'average_plan_amount' => (float)$pdo->query('SELECT COALESCE(AVG(investment_amount), 0) FROM investment_plans')->fetchColumn(),
                 'projected_portfolio_total' => (float)$pdo->query('SELECT COALESCE(SUM(investment_amount), 0) FROM investment_plans')->fetchColumn(),
+                'top_bank' => $topBank,
+                'dominant_risk' => $dominantRisk,
+                'average_user_age' => 'N/A',
             ];
 
             $risk = $pdo->query('SELECT risk, COUNT(*) AS total FROM investment_plans GROUP BY risk ORDER BY total DESC')->fetchAll();
@@ -447,9 +472,15 @@ try {
                 $ageGroups[$bucket] = ($ageGroups[$bucket] ?? 0) + 1;
             }
 
+            $validAges = array_values(array_filter(array_map(static fn(array $row) => calculate_age_from_id((string)($row['id_number'] ?? '')), $clientRows), static fn($age) => $age !== null));
+            if ($validAges) {
+                $overview['average_user_age'] = round(array_sum($validAges) / count($validAges), 1);
+            }
+
             response([
                 'ok' => true,
                 'overview' => $overview,
+                'metrics' => $overview,
                 'risk' => array_values($risk),
                 'banks' => array_values($banks),
                 'plan_types' => array_values($planTypes),
@@ -469,7 +500,7 @@ try {
                  ORDER BY a.created_at DESC
                  LIMIT 100'
             )->fetchAll();
-            response(['ok' => true, 'activity' => $rows]);
+            response(['ok' => true, 'activity' => $rows, 'activities' => $rows]);
 
         case 'admin-export':
             $admin = Auth::requireAdmin();
@@ -477,12 +508,12 @@ try {
 
             if ($type === 'users') {
                 $rows = $pdo->query(user_select_sql() . ' ORDER BY u.created_at DESC')->fetchAll();
-                csv_download('investsmart-users.csv', $rows);
+                response(['ok' => true, 'rows' => $rows]);
             }
 
             if ($type === 'banks') {
                 $rows = $pdo->query('SELECT * FROM banks ORDER BY name')->fetchAll();
-                csv_download('investsmart-banks.csv', $rows);
+                response(['ok' => true, 'rows' => $rows]);
             }
 
             if ($type === 'plans') {
@@ -493,7 +524,7 @@ try {
                      LEFT JOIN banks b ON b.id = p.bank_id
                      ORDER BY p.created_at DESC'
                 )->fetchAll();
-                csv_download('investsmart-plans.csv', $rows);
+                response(['ok' => true, 'rows' => $rows]);
             }
 
             if ($type === 'activity') {
@@ -506,7 +537,7 @@ try {
                      LEFT JOIN admins ad ON ad.id = a.admin_id
                      ORDER BY a.created_at DESC'
                 )->fetchAll();
-                csv_download('investsmart-activity.csv', $rows);
+                response(['ok' => true, 'rows' => $rows]);
             }
 
             error_response('Unknown export type.', 404);
