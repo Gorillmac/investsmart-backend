@@ -566,7 +566,7 @@ try {
         $message = 'That ID number or email address is already registered.';
     }
 
-    error_response($message, 500, ['detail' => APP_DEBUG ? $exception->getMessage() : null]);
+    error_response($message, 500, ['detail' => (defined('APP_DEBUG') && APP_DEBUG) ? $exception->getMessage() : null]);
 } catch (Throwable $exception) {
     error_response($exception->getMessage(), 500);
 }

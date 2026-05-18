@@ -203,3 +203,52 @@ function verify_auth_token(?string $token): ?array
 
     return $payload;
 }
+
+function db(): PDO
+{
+    require_once __DIR__ . '/Database.php';
+    return Database::connection();
+}
+
+function bootstrap_cors(): void
+{
+    apply_cors();
+}
+
+function json_input(): array
+{
+    return request_json();
+}
+
+function response(array $payload, int $status = 200): void
+{
+    json_response($payload, $status);
+}
+
+function error_response(string $message, int $status = 400, array $extra = []): void
+{
+    json_response(array_merge(['ok' => false, 'message' => $message], $extra), $status);
+}
+
+function require_method(string $method): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== $method) {
+        error_response('Method not allowed.', 405);
+    }
+}
+
+function issue_token(PDO $pdo, int $userId): string
+{
+    $user = fetch_user_by_id($pdo, $userId);
+    return issue_auth_token($user ?: ['id' => $userId]);
+}
+
+function get_bearer_token(): ?string
+{
+    return read_bearer_token();
+}
+
+function revoke_token(PDO $pdo, ?string $token): void
+{
+    // Token authentication is stateless in this project. Logout removes the token in the browser.
+}
