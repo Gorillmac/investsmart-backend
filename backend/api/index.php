@@ -30,6 +30,50 @@ function resolve_client_id(PDO $pdo, array $user, ?int $requestedUserId = null):
     error_response('Client account not found.', 404);
 }
 
+function actor_entity_id(array $user): int
+{
+    return (int)($user['client_id'] ?: $user['admin_id'] ?: $user['id']);
+}
+
+function create_demo_otp(PDO $pdo, int $userId, string $purpose): string
+{
+    $otp = (string)random_int(100000, 999999);
+
+    $pdo->prepare('UPDATE auth_otps SET used_at = NOW() WHERE user_id = ? AND purpose = ? AND used_at IS NULL')
+        ->execute([$userId, $purpose]);
+
+    $stmt = $pdo->prepare(
+        'INSERT INTO auth_otps (user_id, purpose, otp_hash, expires_at)
+         VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))'
+    );
+    $stmt->execute([$userId, $purpose, password_hash($otp, PASSWORD_DEFAULT)]);
+
+    return $otp;
+}
+
+function verify_demo_otp(PDO $pdo, int $userId, string $purpose, string $otp): void
+{
+    $stmt = $pdo->prepare(
+        'SELECT id, otp_hash, attempts
+         FROM auth_otps
+         WHERE user_id = ? AND purpose = ? AND used_at IS NULL AND expires_at >= NOW()
+         ORDER BY created_at DESC
+         LIMIT 1'
+    );
+    $stmt->execute([$userId, $purpose]);
+    $row = $stmt->fetch();
+
+    if (!$row || (int)$row['attempts'] >= 5 || !password_verify($otp, (string)$row['otp_hash'])) {
+        if ($row) {
+            $pdo->prepare('UPDATE auth_otps SET attempts = attempts + 1 WHERE id = ?')->execute([(int)$row['id']]);
+        }
+
+        error_response('Invalid or expired OTP. Please request a new code.', 422);
+    }
+
+    $pdo->prepare('UPDATE auth_otps SET used_at = NOW() WHERE id = ?')->execute([(int)$row['id']]);
+}
+
 try {
     $pdo = db();
     $data = json_input();
@@ -126,8 +170,30 @@ try {
                 error_response('This account is inactive. Please contact the administrator.', 403);
             }
 
+            $otp = create_demo_otp($pdo, (int)$user['id'], 'login');
+            Audit::log((int)$user['id'], 'login_otp_requested', (string)$user['role'], actor_entity_id($user), 'Login OTP generated for two-step sign in.');
+
+            response([
+                'ok' => true,
+                'otp_required' => true,
+                'email' => $user['email'],
+                'otp' => $otp,
+                'expires_in_minutes' => 10,
+                'message' => 'OTP generated. Enter the demo OTP shown on screen to continue.',
+            ]);
+
+        case 'verify-login-otp':
+            require_method('POST');
+            require_fields($data, ['email', 'otp']);
+            $user = fetch_user_by_email($pdo, strtolower(trim((string)$data['email'])));
+
+            if (!$user || ($user['status'] ?? '') !== 'active') {
+                error_response('Invalid or expired OTP. Please sign in again.', 401);
+            }
+
+            verify_demo_otp($pdo, (int)$user['id'], 'login', trim((string)$data['otp']));
             $token = issue_token($pdo, (int)$user['id']);
-            Audit::log((int)$user['id'], 'login', (string)$user['role'], (int)($user['client_id'] ?: $user['admin_id'] ?: $user['id']), 'User signed in.');
+            Audit::log((int)$user['id'], 'login', (string)$user['role'], actor_entity_id($user), 'User signed in with OTP.');
 
             response([
                 'ok' => true,
@@ -135,12 +201,62 @@ try {
                 'user' => clean_user($user),
             ]);
 
+        case 'forgot-password':
+            require_method('POST');
+            require_fields($data, ['email']);
+            $user = fetch_user_by_email($pdo, strtolower(trim((string)$data['email'])));
+
+            if (!$user || ($user['status'] ?? '') !== 'active') {
+                error_response('No active account was found for that email address.', 404);
+            }
+
+            $otp = create_demo_otp($pdo, (int)$user['id'], 'password_reset');
+            Audit::log((int)$user['id'], 'password_reset_otp_requested', (string)$user['role'], actor_entity_id($user), 'Password reset OTP generated.');
+
+            response([
+                'ok' => true,
+                'email' => $user['email'],
+                'otp' => $otp,
+                'expires_in_minutes' => 10,
+                'message' => 'Password reset OTP generated. Enter the demo OTP shown on screen.',
+            ]);
+
+        case 'reset-password':
+            require_method('POST');
+            require_fields($data, ['email', 'otp', 'password', 'confirm_password']);
+
+            if ((string)$data['password'] !== (string)$data['confirm_password']) {
+                error_response('Passwords do not match.', 422);
+            }
+
+            if (strlen((string)$data['password']) < 6) {
+                error_response('Password must be at least 6 characters.', 422);
+            }
+
+            $user = fetch_user_by_email($pdo, strtolower(trim((string)$data['email'])));
+            if (!$user || ($user['status'] ?? '') !== 'active') {
+                error_response('Invalid reset request. Please request a new OTP.', 401);
+            }
+
+            verify_demo_otp($pdo, (int)$user['id'], 'password_reset', trim((string)$data['otp']));
+            $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?')->execute([
+                password_hash((string)$data['password'], PASSWORD_DEFAULT),
+                (int)$user['id'],
+            ]);
+            Audit::log((int)$user['id'], 'password_reset', (string)$user['role'], actor_entity_id($user), 'Password reset completed with OTP.');
+
+            response([
+                'ok' => true,
+                'email' => $user['email'],
+                'message' => 'Password updated successfully. Please sign in with your new password.',
+            ]);
+
         case 'logout':
             require_method('POST');
             $currentUser = Auth::currentUser();
             if ($currentUser) {
                 revoke_token($pdo, get_bearer_token());
-                Audit::log((int)$currentUser['id'], 'logout', (string)$currentUser['role'], (int)($currentUser['client_id'] ?: $currentUser['admin_id'] ?: $currentUser['id']), 'User signed out.');
+                Audit::log((int)$currentUser['id'], 'logout', (string)$currentUser['role'], actor_entity_id($currentUser), 'User signed out.');
             }
             response(['ok' => true]);
 

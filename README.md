@@ -14,6 +14,7 @@ The system includes:
 - saved plans and printable reports
 - admin analytics and exports
 - audit trail logging
+- demo OTP login and forgot-password reset
 
 ## Project Structure
 
@@ -140,6 +141,26 @@ const SESSION_SECURE_COOKIES = true;
 
 - Email: `admin@investsmart.local`
 - Password: `password`
+- After entering the password, the system shows a demo OTP on screen. Enter that OTP to complete login.
+
+## OTP Login and Forgot Password
+
+Every successful email/password login creates a 6-digit OTP. For this school project, the OTP is displayed on screen so the workflow can be demonstrated without an email server.
+
+Forgot Password uses the same demo OTP idea:
+
+1. Click `Forgot password?`
+2. Enter the account email
+3. Copy the OTP shown on screen
+4. Enter the OTP and the new password
+
+The database stores only the hashed OTP in `auth_otps`; the visible OTP is for demonstration only.
+
+If you already had the database before OTP was added, run the SQL in:
+
+```text
+database/update_otp_table.sql
+```
 
 ## Hosted Frontend With Local Backend
 

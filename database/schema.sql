@@ -97,6 +97,19 @@ CREATE TABLE IF NOT EXISTS activity_logs (
   CONSTRAINT fk_activity_admin FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE SET NULL
 );
 
+CREATE TABLE IF NOT EXISTS auth_otps (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  purpose ENUM('login', 'password_reset') NOT NULL,
+  otp_hash VARCHAR(255) NOT NULL,
+  attempts INT NOT NULL DEFAULT 0,
+  expires_at DATETIME NOT NULL,
+  used_at DATETIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_auth_otp_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_auth_otps_user_purpose (user_id, purpose, expires_at)
+);
+
 INSERT INTO users (email, password_hash, role, status)
 VALUES ('admin@investsmart.local', '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active')
 ON DUPLICATE KEY UPDATE email = email;
