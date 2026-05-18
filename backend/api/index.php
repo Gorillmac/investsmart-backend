@@ -10,10 +10,9 @@ require_once __DIR__ . '/../RecommendationService.php';
 
 bootstrap_cors();
 
-$pdo = db();
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_GET['action'] ?? '';
-$data = json_input();
+$data = [];
 
 function resolve_client_id(PDO $pdo, array $user, ?int $requestedUserId = null): int
 {
@@ -32,6 +31,9 @@ function resolve_client_id(PDO $pdo, array $user, ?int $requestedUserId = null):
 }
 
 try {
+    $pdo = db();
+    $data = json_input();
+
     switch ($action) {
         case 'register':
             require_method('POST');
@@ -548,7 +550,7 @@ try {
 } catch (PDOException $exception) {
     $message = 'A database error occurred. Please try again.';
 
-    if ($action === 'register') {
+    if ($action === 'register' && isset($pdo)) {
         $email = strtolower(trim((string)($data['email'] ?? '')));
         if ($email !== '' && fetch_user_by_email($pdo, $email)) {
             response([
