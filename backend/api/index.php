@@ -211,8 +211,8 @@ try {
         case 'recommend':
             require_method('POST');
             $user = Auth::requireClient();
-            $service = new RecommendationService($pdo);
-            $result = $service->recommend($user, $data);
+            $age = calculate_age_from_id((string)($user['id_number'] ?? '')) ?? 30;
+            $result = RecommendationService::recommend($data, $age);
             response(['ok' => true, 'results' => $result, 'recommendations' => $result]);
 
         case 'plans':
