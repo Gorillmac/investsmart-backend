@@ -60,6 +60,17 @@ try {
         render_setup_page('<p>The schema file could not be read.</p>', false);
     }
 
+    $resetRequested = isset($_GET['reset']) && $_GET['reset'] === '1';
+
+    if ($resetRequested) {
+        $databaseName = preg_replace('/[^a-zA-Z0-9_]/', '', DB_NAME);
+        if ($databaseName === '') {
+            render_setup_page('<p>The configured database name is invalid.</p>', false);
+        }
+
+        $pdo->exec("DROP DATABASE IF EXISTS `{$databaseName}`");
+    }
+
     $pdo->exec($sql);
 
     render_setup_page(
@@ -69,7 +80,8 @@ try {
           <a class="primary" href="public/index.html">Open InvestSmart</a>
           <a class="secondary" href="http://localhost/phpmyadmin/" target="_blank" rel="noreferrer">Open phpMyAdmin</a>
         </div>
-        <p style="margin-top:20px;">For safety, remove or disable <code>setup.php</code> before production deployment.</p>'
+        <p style="margin-top:20px;">If the database already used an older table structure, open <code>setup.php?reset=1</code> once to recreate it from the latest schema. This removes old local test data.</p>
+        <p>For safety, remove or disable <code>setup.php</code> before production deployment.</p>'
     );
 } catch (Throwable $exception) {
     $error = htmlspecialchars($exception->getMessage(), ENT_QUOTES, 'UTF-8');
