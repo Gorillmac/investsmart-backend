@@ -1,0 +1,544 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+3 0 obj
+<< /Length 3084 >>
+stream
+BT
+/F2 16 Tf
+46 808 Td
+(InvestSmart Database Script and Setup Guide) Tj
+/F1 9 Tf
+0 -22 Td
+(InvestSmart Database Script and Setup Guide) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Project: InvestSmart Financial Management and Investment Recommendation System) Tj
+0 -13 Td
+(Database engine: MySQL / MariaDB) Tj
+0 -13 Td
+(Recommended local stack: XAMPP) Tj
+0 -13 Td
+(Database name: investsmart) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Purpose) Tj
+0 -13 Td
+(This document contains the database setup information for the InvestSmart project. It is) Tj
+0 -13 Td
+(intended to help a lecturer, student, or developer recreate the database tables,) Tj
+0 -13 Td
+(relationships, seed data, and OTP update table used by the backend.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(How to Run the Database Script in XAMPP) Tj
+0 -13 Td
+(1. Start XAMPP Control Panel.) Tj
+0 -13 Td
+(2. Start Apache and MySQL.) Tj
+0 -13 Td
+(3. Open a browser and go to http://localhost/phpmyadmin.) Tj
+0 -13 Td
+(4. Create a database named investsmart if it does not already exist.) Tj
+0 -13 Td
+(5. Select the investsmart database.) Tj
+0 -13 Td
+(6. Open the SQL tab.) Tj
+0 -13 Td
+(7. Copy and run the SQL script from database/schema.sql.) Tj
+0 -13 Td
+(8. If the database already existed before OTP was added, also run) Tj
+0 -13 Td
+(database/update_otp_table.sql.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Command Prompt Option) Tj
+0 -13 Td
+(If MySQL is available from the command prompt, run:) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(cd C:\\xampp\\mysql\\bin) Tj
+0 -13 Td
+(mysql -u root) Tj
+0 -13 Td
+(CREATE DATABASE IF NOT EXISTS investsmart;) Tj
+0 -13 Td
+(USE investsmart;) Tj
+0 -13 Td
+(SOURCE C:/xampp/htdocs/investsmart/database/schema.sql;) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Important Tables) Tj
+0 -13 Td
+(- users: stores login credentials, role, and account status.) Tj
+0 -13 Td
+(- clients: stores normal user profile details linked to users.) Tj
+0 -13 Td
+(- admins: stores administrator profile details linked to users.) Tj
+0 -13 Td
+(- financial_profiles: stores salary, deductions, expenses, savings, and net salary.) Tj
+0 -13 Td
+(- banks: stores investment provider/bank criteria used by the calculator.) Tj
+0 -13 Td
+(- investment_plans: stores saved recommendations/plans for clients.) Tj
+0 -13 Td
+(- activity_logs: stores audit trail records.) Tj
+0 -13 Td
+(- auth_otps: stores hashed OTP records for login and password reset.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Default Seed Data) Tj
+0 -13 Td
+(The schema creates the default administrator account and seed bank/provider records.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Database Script) Tj
+0 -13 Td
+(CREATE DATABASE IF NOT EXISTS investsmart CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;) Tj
+0 -13 Td
+(USE investsmart;) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(CREATE TABLE IF NOT EXISTS users \() Tj
+0 -13 Td
+(  id INT AUTO_INCREMENT PRIMARY KEY,) Tj
+0 -13 Td
+(  email VARCHAR\(180\) NOT NULL UNIQUE,) Tj
+0 -13 Td
+(  password_hash VARCHAR\(255\) NOT NULL,) Tj
+0 -13 Td
+(  role ENUM\('client', 'admin'\) NOT NULL DEFAULT 'client',) Tj
+0 -13 Td
+(  status ENUM\('active', 'inactive'\) NOT NULL DEFAULT 'active',) Tj
+0 -13 Td
+/F1 8 Tf
+475 -732 Td
+(Page 1 of 4) Tj
+ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 11 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+5 0 obj
+<< /Length 3007 >>
+stream
+BT
+/F2 16 Tf
+46 808 Td
+(InvestSmart Database Script and Setup Guide) Tj
+/F1 9 Tf
+0 -22 Td
+(  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP) Tj
+0 -13 Td
+(\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(CREATE TABLE IF NOT EXISTS clients \() Tj
+0 -13 Td
+(  id INT AUTO_INCREMENT PRIMARY KEY,) Tj
+0 -13 Td
+(  user_id INT NOT NULL UNIQUE,) Tj
+0 -13 Td
+(  full_name VARCHAR\(120\) NOT NULL,) Tj
+0 -13 Td
+(  surname VARCHAR\(120\) NOT NULL,) Tj
+0 -13 Td
+(  id_number VARCHAR\(20\) NOT NULL UNIQUE,) Tj
+0 -13 Td
+(  contact_info VARCHAR\(180\) NULL,) Tj
+0 -13 Td
+(  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,) Tj
+0 -13 Td
+(  CONSTRAINT fk_client_user FOREIGN KEY \(user_id\) REFERENCES users\(id\) ON DELETE CASCADE) Tj
+0 -13 Td
+(\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(CREATE TABLE IF NOT EXISTS admins \() Tj
+0 -13 Td
+(  id INT AUTO_INCREMENT PRIMARY KEY,) Tj
+0 -13 Td
+(  user_id INT NOT NULL UNIQUE,) Tj
+0 -13 Td
+(  full_name VARCHAR\(120\) NOT NULL,) Tj
+0 -13 Td
+(  surname VARCHAR\(120\) NOT NULL,) Tj
+0 -13 Td
+(  employee_code VARCHAR\(40\) NULL UNIQUE,) Tj
+0 -13 Td
+(  contact_info VARCHAR\(180\) NULL,) Tj
+0 -13 Td
+(  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,) Tj
+0 -13 Td
+(  CONSTRAINT fk_admin_user FOREIGN KEY \(user_id\) REFERENCES users\(id\) ON DELETE CASCADE) Tj
+0 -13 Td
+(\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(CREATE TABLE IF NOT EXISTS financial_profiles \() Tj
+0 -13 Td
+(  id INT AUTO_INCREMENT PRIMARY KEY,) Tj
+0 -13 Td
+(  client_id INT NOT NULL UNIQUE,) Tj
+0 -13 Td
+(  gross_salary DECIMAL\(12,2\) NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  deductions DECIMAL\(12,2\) NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  monthly_expenses DECIMAL\(12,2\) NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  current_savings DECIMAL\(12,2\) NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  net_salary DECIMAL\(12,2\) NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,) Tj
+0 -13 Td
+(  CONSTRAINT fk_financial_client FOREIGN KEY \(client_id\) REFERENCES clients\(id\) ON DELETE) Tj
+0 -13 Td
+(  CASCADE) Tj
+0 -13 Td
+(\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(CREATE TABLE IF NOT EXISTS banks \() Tj
+0 -13 Td
+(  id INT AUTO_INCREMENT PRIMARY KEY,) Tj
+0 -13 Td
+(  name VARCHAR\(160\) NOT NULL,) Tj
+0 -13 Td
+(  contact_info VARCHAR\(220\) NOT NULL,) Tj
+0 -13 Td
+(  website VARCHAR\(255\) NOT NULL,) Tj
+0 -13 Td
+(  plan_type VARCHAR\(80\) NOT NULL,) Tj
+0 -13 Td
+(  expected_return DECIMAL\(5,2\) NOT NULL,) Tj
+0 -13 Td
+(  risk ENUM\('Low', 'Medium', 'High'\) NOT NULL,) Tj
+0 -13 Td
+(  liquidity ENUM\('High', 'Medium', 'Low'\) NOT NULL,) Tj
+0 -13 Td
+(  horizon ENUM\('Short', 'Medium', 'Long'\) NOT NULL,) Tj
+0 -13 Td
+(  allows_monthly TINYINT\(1\) NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  details TEXT NULL,) Tj
+0 -13 Td
+(  created_by_admin_id INT NULL,) Tj
+0 -13 Td
+(  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,) Tj
+0 -13 Td
+(  CONSTRAINT fk_bank_admin FOREIGN KEY \(created_by_admin_id\) REFERENCES admins\(id\) ON DELETE) Tj
+0 -13 Td
+(  SET NULL) Tj
+0 -13 Td
+(\);) Tj
+0 -13 Td
+/F1 8 Tf
+475 -732 Td
+(Page 2 of 4) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 11 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 3100 >>
+stream
+BT
+/F2 16 Tf
+46 808 Td
+(InvestSmart Database Script and Setup Guide) Tj
+/F1 9 Tf
+0 -22 Td
+() Tj
+0 -13 Td
+(CREATE TABLE IF NOT EXISTS investment_plans \() Tj
+0 -13 Td
+(  id INT AUTO_INCREMENT PRIMARY KEY,) Tj
+0 -13 Td
+(  client_id INT NOT NULL,) Tj
+0 -13 Td
+(  bank_id INT NULL,) Tj
+0 -13 Td
+(  user_plan_name VARCHAR\(160\) NOT NULL,) Tj
+0 -13 Td
+(  investment_amount DECIMAL\(12,2\) NOT NULL,) Tj
+0 -13 Td
+(  monthly_contribution TINYINT\(1\) NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  monthly_amount DECIMAL\(12,2\) NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  investment_goal VARCHAR\(255\) NOT NULL,) Tj
+0 -13 Td
+(  risk ENUM\('Low', 'Medium', 'High'\) NOT NULL,) Tj
+0 -13 Td
+(  liquidity ENUM\('High', 'Medium', 'Low'\) NOT NULL,) Tj
+0 -13 Td
+(  horizon ENUM\('Short', 'Medium', 'Long'\) NOT NULL,) Tj
+0 -13 Td
+(  expected_return DECIMAL\(5,2\) NOT NULL,) Tj
+0 -13 Td
+(  score INT NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  bank_investment_url VARCHAR\(255\) NOT NULL,) Tj
+0 -13 Td
+(  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,) Tj
+0 -13 Td
+(  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,) Tj
+0 -13 Td
+(  CONSTRAINT fk_plan_client FOREIGN KEY \(client_id\) REFERENCES clients\(id\) ON DELETE) Tj
+0 -13 Td
+(  CASCADE,) Tj
+0 -13 Td
+(  CONSTRAINT fk_plan_bank FOREIGN KEY \(bank_id\) REFERENCES banks\(id\) ON DELETE SET NULL) Tj
+0 -13 Td
+(\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(CREATE TABLE IF NOT EXISTS activity_logs \() Tj
+0 -13 Td
+(  id INT AUTO_INCREMENT PRIMARY KEY,) Tj
+0 -13 Td
+(  user_id INT NULL,) Tj
+0 -13 Td
+(  client_id INT NULL,) Tj
+0 -13 Td
+(  admin_id INT NULL,) Tj
+0 -13 Td
+(  action VARCHAR\(80\) NOT NULL,) Tj
+0 -13 Td
+(  entity_type VARCHAR\(80\) NOT NULL,) Tj
+0 -13 Td
+(  entity_id INT NULL,) Tj
+0 -13 Td
+(  description VARCHAR\(255\) NULL,) Tj
+0 -13 Td
+(  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,) Tj
+0 -13 Td
+(  CONSTRAINT fk_activity_user FOREIGN KEY \(user_id\) REFERENCES users\(id\) ON DELETE SET NULL,) Tj
+0 -13 Td
+(  CONSTRAINT fk_activity_client FOREIGN KEY \(client_id\) REFERENCES clients\(id\) ON DELETE SET) Tj
+0 -13 Td
+(  NULL,) Tj
+0 -13 Td
+(  CONSTRAINT fk_activity_admin FOREIGN KEY \(admin_id\) REFERENCES admins\(id\) ON DELETE SET) Tj
+0 -13 Td
+(  NULL) Tj
+0 -13 Td
+(\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(CREATE TABLE IF NOT EXISTS auth_otps \() Tj
+0 -13 Td
+(  id INT AUTO_INCREMENT PRIMARY KEY,) Tj
+0 -13 Td
+(  user_id INT NOT NULL,) Tj
+0 -13 Td
+(  purpose ENUM\('login', 'password_reset'\) NOT NULL,) Tj
+0 -13 Td
+(  otp_hash VARCHAR\(255\) NOT NULL,) Tj
+0 -13 Td
+(  attempts INT NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  expires_at DATETIME NOT NULL,) Tj
+0 -13 Td
+(  used_at DATETIME NULL,) Tj
+0 -13 Td
+(  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,) Tj
+0 -13 Td
+(  CONSTRAINT fk_auth_otp_user FOREIGN KEY \(user_id\) REFERENCES users\(id\) ON DELETE CASCADE,) Tj
+0 -13 Td
+(  INDEX idx_auth_otps_user_purpose \(user_id, purpose, expires_at\)) Tj
+0 -13 Td
+(\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(INSERT INTO users \(email, password_hash, role, status\)) Tj
+0 -13 Td
+(VALUES \('admin@investsmart.local',) Tj
+0 -13 Td
+/F1 8 Tf
+475 -732 Td
+(Page 3 of 4) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 11 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 3872 >>
+stream
+BT
+/F2 16 Tf
+46 808 Td
+(InvestSmart Database Script and Setup Guide) Tj
+/F1 9 Tf
+0 -22 Td
+('$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active'\)) Tj
+0 -13 Td
+(ON DUPLICATE KEY UPDATE email = email;) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(INSERT INTO admins \(user_id, full_name, surname, employee_code, contact_info\)) Tj
+0 -13 Td
+(SELECT u.id, 'System', 'Admin', 'ADM-001', 'admin@investsmart.local') Tj
+0 -13 Td
+(FROM users u) Tj
+0 -13 Td
+(WHERE u.email = 'admin@investsmart.local') Tj
+0 -13 Td
+(  AND NOT EXISTS \(SELECT 1 FROM admins a WHERE a.user_id = u.id\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(INSERT INTO banks \(name, contact_info, website, plan_type, expected_return, risk, liquidity,) Tj
+0 -13 Td
+(horizon, allows_monthly, details, created_by_admin_id\) VALUES) Tj
+0 -13 Td
+(\('Standard Bank', 'investments@standardbank.co.za | 0860 123 000',) Tj
+0 -13 Td
+('https://www.standardbank.co.za/southafrica/personal/products-and-services/grow-your-) Tj
+0 -13 Td
+(money/investment-solutions/digital-save-and-invest', 'Fixed Plan', 7.20, 'Low', 'Low',) Tj
+0 -13 Td
+('Short', 0, 'Fixed-term investment option for users who prefer capital stability and) Tj
+0 -13 Td
+(predictable returns.', 1\),) Tj
+0 -13 Td
+(\('FNB', 'invest@fnb.co.za | 087 575 9404', 'https://www.fnb.co.za/for-me/save-and-) Tj
+0 -13 Td
+(invest.html', 'Flexi Plan', 8.35, 'Low', 'High', 'Short', 1, 'Flexible savings and) Tj
+0 -13 Td
+(investment access with recurring contribution support.', 1\),) Tj
+0 -13 Td
+(\('Nedbank', 'wealth@nedbank.co.za | 0800 555 111', 'https://personal.nedbank.co.za/private-) Tj
+0 -13 Td
+(clients/invest/invest-with-us.html', 'Retirement/Income Plan', 9.40, 'Medium', 'Low',) Tj
+0 -13 Td
+('Long', 1, 'Long-term retirement and income-focused solution for balanced investors.', 1\),) Tj
+0 -13 Td
+(\('Absa', 'investment@absa.co.za | 0860 111 515',) Tj
+0 -13 Td
+('https://www.absa.co.za/personal/investment-management/investment-accounts/', 'Growth Plan',) Tj
+0 -13 Td
+(12.60, 'Medium', 'Medium', 'Medium', 1, 'Balanced growth investment for users seeking) Tj
+0 -13 Td
+(moderate risk and medium-term returns.', 1\),) Tj
+0 -13 Td
+(\('Capitec', 'invest@capitecbank.co.za | 0860 102 043',) Tj
+0 -13 Td
+('https://www.capitecbank.co.za/personal/save/', 'Flexi Plan', 8.75, 'Medium', 'High',) Tj
+0 -13 Td
+('Short', 1, 'Simple flexible investment structure with accessible monthly contribution) Tj
+0 -13 Td
+(options for users who can accept moderate risk.', 1\),) Tj
+0 -13 Td
+(\('Investec', 'wealth@investec.co.za | 0860 443 443',) Tj
+0 -13 Td
+('https://www.investec.com/en_za/focus/investing/how-to-save-and-invest.html', 'Equity Plan',) Tj
+0 -13 Td
+(15.80, 'High', 'High', 'Long', 0, 'Higher-growth equity-linked investment option for users) Tj
+0 -13 Td
+(with long horizons and higher risk tolerance.', 1\)) Tj
+0 -13 Td
+(ON DUPLICATE KEY UPDATE website = VALUES\(website\), contact_info = VALUES\(contact_info\),) Tj
+0 -13 Td
+(details = VALUES\(details\), expected_return = VALUES\(expected_return\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(OTP Update Script for Existing Databases) Tj
+0 -13 Td
+(USE investsmart;) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(CREATE TABLE IF NOT EXISTS auth_otps \() Tj
+0 -13 Td
+(  id INT AUTO_INCREMENT PRIMARY KEY,) Tj
+0 -13 Td
+(  user_id INT NOT NULL,) Tj
+0 -13 Td
+(  purpose ENUM\('login', 'password_reset'\) NOT NULL,) Tj
+0 -13 Td
+(  otp_hash VARCHAR\(255\) NOT NULL,) Tj
+0 -13 Td
+(  attempts INT NOT NULL DEFAULT 0,) Tj
+0 -13 Td
+(  expires_at DATETIME NOT NULL,) Tj
+0 -13 Td
+(  used_at DATETIME NULL,) Tj
+0 -13 Td
+(  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,) Tj
+0 -13 Td
+(  CONSTRAINT fk_auth_otp_user FOREIGN KEY \(user_id\) REFERENCES users\(id\) ON DELETE CASCADE,) Tj
+0 -13 Td
+(  INDEX idx_auth_otps_user_purpose \(user_id, purpose, expires_at\)) Tj
+0 -13 Td
+(\);) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+/F1 8 Tf
+475 -719 Td
+(Page 4 of 4) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 11 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R 10 0 R] /Count 4 >>
+endobj
+12 0 obj
+<< /Type /Catalog /Pages 11 0 R >>
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000000160 00000 n 
+0000003296 00000 n 
+0000003433 00000 n 
+0000006492 00000 n 
+0000006629 00000 n 
+0000009781 00000 n 
+0000009918 00000 n 
+0000013842 00000 n 
+0000013980 00000 n 
+0000014057 00000 n 
+trailer
+<< /Size 13 /Root 12 0 R >>
+startxref
+14108
+%%EOF

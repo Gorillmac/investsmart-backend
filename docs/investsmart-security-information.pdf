@@ -1,0 +1,348 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+3 0 obj
+<< /Length 2446 >>
+stream
+BT
+/F2 16 Tf
+46 808 Td
+(InvestSmart Security Information) Tj
+/F1 9 Tf
+0 -22 Td
+(InvestSmart Security Information) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Project: InvestSmart Financial Management and Investment Recommendation System) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Purpose) Tj
+0 -13 Td
+(This document records the security model used by the InvestSmart system, including roles,) Tj
+0 -13 Td
+(default demo users, password handling, OTP handling, and access control rules.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(User Roles) Tj
+0 -13 Td
+(1. client) Tj
+0 -13 Td
+(Normal users are registered as clients. They can access only their own profile, finances,) Tj
+0 -13 Td
+(calculator results, saved investment plans, and personal report.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Client-accessible pages:) Tj
+0 -13 Td
+(- Dashboard) Tj
+0 -13 Td
+(- Profile) Tj
+0 -13 Td
+(- My Finances) Tj
+0 -13 Td
+(- Investment Calculator) Tj
+0 -13 Td
+(- My Plans) Tj
+0 -13 Td
+(- My Report) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(2. admin) Tj
+0 -13 Td
+(Administrators manage the system. They can view system analytics, manage users, manage) Tj
+0 -13 Td
+(banks/providers, view reports, and inspect activity logs.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Admin-accessible pages:) Tj
+0 -13 Td
+(- Admin Dashboard) Tj
+0 -13 Td
+(- Manage Users) Tj
+0 -13 Td
+(- Manage Providers/Banks) Tj
+0 -13 Td
+(- Admin Reports) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Default Admin Account) Tj
+0 -13 Td
+(Email: admin@investsmart.local) Tj
+0 -13 Td
+(Password: password) Tj
+0 -13 Td
+(Role: admin) Tj
+0 -13 Td
+(Status: active) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Normal User Accounts) Tj
+0 -13 Td
+(Normal users are created from the Sign Up form. The system does not require one fixed) Tj
+0 -13 Td
+(default client account because each client registers their own details.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Example test client account for demonstrations:) Tj
+0 -13 Td
+(Full Name: Demo) Tj
+0 -13 Td
+(Surname: Client) Tj
+0 -13 Td
+(ID Number: 0001015009087) Tj
+0 -13 Td
+(Email: client@investsmart.local) Tj
+0 -13 Td
+(Password: password) Tj
+0 -13 Td
+(Role after registration: client) Tj
+0 -13 Td
+(Status after registration: active) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Note: If this demo client is needed, create it from the Sign Up page before testing. The) Tj
+0 -13 Td
+(database script only seeds the administrator and bank/provider records.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Password Security) Tj
+0 -13 Td
+(- Passwords are not stored as plain text.) Tj
+0 -13 Td
+/F1 8 Tf
+475 -732 Td
+(Page 1 of 3) Tj
+ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+5 0 obj
+<< /Length 3023 >>
+stream
+BT
+/F2 16 Tf
+46 808 Td
+(InvestSmart Security Information) Tj
+/F1 9 Tf
+0 -22 Td
+(- PHP password_hash\(\) is used to store hashed passwords.) Tj
+0 -13 Td
+(- PHP password_verify\(\) is used during login.) Tj
+0 -13 Td
+(- Administrators can issue a temporary password when resetting a user password.) Tj
+0 -13 Td
+(- Users can use Forgot Password with OTP to create a new password.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(OTP Security for School Demonstration) Tj
+0 -13 Td
+(InvestSmart uses OTP verification for login and password reset. Because this is a school) Tj
+0 -13 Td
+(project and email/SMS delivery is not required, the OTP is displayed on the screen for) Tj
+0 -13 Td
+(demonstration purposes.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Login flow:) Tj
+0 -13 Td
+(1. User enters email and password.) Tj
+0 -13 Td
+(2. Backend verifies the password.) Tj
+0 -13 Td
+(3. Backend creates a one-time OTP.) Tj
+0 -13 Td
+(4. OTP is shown on the screen.) Tj
+0 -13 Td
+(5. User enters the OTP.) Tj
+0 -13 Td
+(6. Backend verifies the OTP.) Tj
+0 -13 Td
+(7. Backend creates an auth token.) Tj
+0 -13 Td
+(8. User is redirected based on role.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Forgot password flow:) Tj
+0 -13 Td
+(1. User opens Forgot Password.) Tj
+0 -13 Td
+(2. User enters email address.) Tj
+0 -13 Td
+(3. Backend generates a password reset OTP.) Tj
+0 -13 Td
+(4. OTP is shown on the screen.) Tj
+0 -13 Td
+(5. User enters OTP and a new password.) Tj
+0 -13 Td
+(6. Backend verifies OTP and updates password hash.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(OTP Storage Rules) Tj
+0 -13 Td
+(- OTP values are hashed before being stored in auth_otps.) Tj
+0 -13 Td
+(- OTP records include a purpose: login or password_reset.) Tj
+0 -13 Td
+(- OTP records expire after a short time.) Tj
+0 -13 Td
+(- Used OTP records are marked as used.) Tj
+0 -13 Td
+(- Failed attempts are counted.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Session and Token Security) Tj
+0 -13 Td
+(- The backend issues an authentication token after OTP verification.) Tj
+0 -13 Td
+(- Tokens are stored in the auth_tokens table as hashes.) Tj
+0 -13 Td
+(- API requests require the token for protected endpoints.) Tj
+0 -13 Td
+(- Admin endpoints require role = admin.) Tj
+0 -13 Td
+(- Client endpoints require role = client or the authenticated user's own data.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Access Control Summary) Tj
+0 -13 Td
+(- A client can only view and update their own information.) Tj
+0 -13 Td
+(- A client cannot access admin dashboard, user management, provider management, or admin) Tj
+0 -13 Td
+(reports.) Tj
+0 -13 Td
+(- An admin can manage users and providers.) Tj
+0 -13 Td
+(- An admin can view system-wide analytics and audit activity.) Tj
+0 -13 Td
+(- Logout removes the frontend token and ends the user's active session from the browser) Tj
+0 -13 Td
+(side.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Audit Trail) Tj
+0 -13 Td
+(Important user and admin activities are recorded in activity_logs. This supports) Tj
+0 -13 Td
+(accountability and makes the system more professional for assessment.) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+/F1 8 Tf
+475 -732 Td
+(Page 2 of 3) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 1057 >>
+stream
+BT
+/F2 16 Tf
+46 808 Td
+(InvestSmart Security Information) Tj
+/F1 9 Tf
+0 -22 Td
+(Examples of logged actions:) Tj
+0 -13 Td
+(- register) Tj
+0 -13 Td
+(- login_otp_verified) Tj
+0 -13 Td
+(- password_reset_otp_requested) Tj
+0 -13 Td
+(- password_reset) Tj
+0 -13 Td
+(- update_profile) Tj
+0 -13 Td
+(- save_financial_profile) Tj
+0 -13 Td
+(- save_investment_plan) Tj
+0 -13 Td
+(- create_bank) Tj
+0 -13 Td
+(- update_bank) Tj
+0 -13 Td
+(- delete_bank) Tj
+0 -13 Td
+(- change_user_status) Tj
+0 -13 Td
+(- reset_password) Tj
+0 -13 Td
+() Tj
+0 -13 Td
+(Security Notes for Submission) Tj
+0 -13 Td
+(- This system is suitable for a student demonstration environment.) Tj
+0 -13 Td
+(- Production deployment should send OTPs through email or SMS instead of displaying them on) Tj
+0 -13 Td
+(screen.) Tj
+0 -13 Td
+(- Production deployment should use HTTPS, secure cookies, rate limiting, server-side) Tj
+0 -13 Td
+(sessions, and stronger password policies.) Tj
+0 -13 Td
+(- Default demo passwords should be changed before real-world use.) Tj
+0 -13 Td
+/F1 8 Tf
+475 -290 Td
+(Page 3 of 3) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R] /Count 3 >>
+endobj
+10 0 obj
+<< /Type /Catalog /Pages 9 0 R >>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000000160 00000 n 
+0000002658 00000 n 
+0000002794 00000 n 
+0000005869 00000 n 
+0000006005 00000 n 
+0000007114 00000 n 
+0000007250 00000 n 
+0000007319 00000 n 
+trailer
+<< /Size 11 /Root 10 0 R >>
+startxref
+7369
+%%EOF
