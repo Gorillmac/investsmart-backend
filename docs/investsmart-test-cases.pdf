@@ -1,0 +1,384 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+3 0 obj
+<< /Length 3583 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart Test Cases) Tj
+/F1 9 Tf
+0 -24 Td
+(InvestSmart Test Cases) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 1: Open Home Page) Tj
+0 -12 Td
+(Objective: Confirm that the system home page loads.) Tj
+0 -12 Td
+(Precondition: Frontend files are available and Apache is running if testing locally.) Tj
+0 -12 Td
+(Steps: Open http://127.0.0.1/investsmart/public/index.html.) Tj
+0 -12 Td
+(Expected Result: Home page displays InvestSmart branding, Sign In button, Sign Up button, and) Tj
+0 -12 Td
+(system introduction.) Tj
+0 -12 Td
+(Status: Pass if the page loads without broken layout.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 2: Client Sign Up) Tj
+0 -12 Td
+(Objective: Confirm that a normal user can create an account.) Tj
+0 -12 Td
+(Precondition: MySQL database exists and schema.sql has been executed.) Tj
+0 -12 Td
+(Steps: Open Sign Up, enter full name, surname, ID number, email, password, and confirm) Tj
+0 -12 Td
+(password, then submit.) Tj
+0 -12 Td
+(Expected Result: Account is created and user is routed or prompted to sign in.) Tj
+0 -12 Td
+(Status: Pass if user record is created in users and clients tables.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 3: Duplicate Email Validation) Tj
+0 -12 Td
+(Objective: Confirm duplicate accounts are prevented.) Tj
+0 -12 Td
+(Precondition: A user already exists with the selected email.) Tj
+0 -12 Td
+(Steps: Attempt to sign up using the same email.) Tj
+0 -12 Td
+(Expected Result: System shows an error and does not create a duplicate user.) Tj
+0 -12 Td
+(Status: Pass if only one user record exists for that email.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 4: Client Login with OTP) Tj
+0 -12 Td
+(Objective: Confirm client login requires OTP after correct password.) Tj
+0 -12 Td
+(Precondition: Client account exists.) Tj
+0 -12 Td
+(Steps: Enter email and password, click Sign In, read the displayed OTP, enter OTP, click) Tj
+0 -12 Td
+(Verify OTP.) Tj
+0 -12 Td
+(Expected Result: Client is redirected to dashboard.html.) Tj
+0 -12 Td
+(Status: Pass if dashboard opens and client menu is visible.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 5: Admin Login from Same Login Page) Tj
+0 -12 Td
+(Objective: Confirm admins use the same login page as clients.) Tj
+0 -12 Td
+(Precondition: Default admin account exists.) Tj
+0 -12 Td
+(Steps: Login using admin@investsmart.local and password, enter displayed OTP.) Tj
+0 -12 Td
+(Expected Result: Admin is redirected to admin-dashboard.html.) Tj
+0 -12 Td
+(Status: Pass if admin dashboard and admin menu are visible.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 6: Invalid Login) Tj
+0 -12 Td
+(Objective: Confirm wrong password is rejected.) Tj
+0 -12 Td
+(Precondition: Existing user account.) Tj
+0 -12 Td
+(Steps: Enter correct email and wrong password.) Tj
+0 -12 Td
+(Expected Result: System displays invalid email or password and does not show dashboard.) Tj
+0 -12 Td
+(Status: Pass if no token/session is issued.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 7: Forgot Password with OTP) Tj
+0 -12 Td
+(Objective: Confirm password reset flow works.) Tj
+0 -12 Td
+(Precondition: Existing account.) Tj
+0 -12 Td
+(Steps: Click Forgot Password, enter email, read displayed OTP, enter OTP and new password.) Tj
+0 -12 Td
+(Expected Result: Password is updated and user can sign in with new password.) Tj
+0 -12 Td
+(Status: Pass if old password no longer works and new password works.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 8: Profile View and Update) Tj
+0 -12 Td
+(Objective: Confirm client profile details are displayed and editable.) Tj
+0 -12 Td
+(Precondition: Client is logged in.) Tj
+0 -12 Td
+/F1 8 Tf
+477 -702 Td
+(Page 1 of 3) Tj
+ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+5 0 obj
+<< /Length 3472 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart Test Cases) Tj
+/F1 9 Tf
+0 -24 Td
+(Steps: Open Profile, update contact/email field, save.) Tj
+0 -12 Td
+(Expected Result: Success message appears and database is updated.) Tj
+0 -12 Td
+(Status: Pass if updated value persists after refresh.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 9: My Finances Net Salary Calculation) Tj
+0 -12 Td
+(Objective: Confirm net salary is calculated in real time.) Tj
+0 -12 Td
+(Precondition: Client is logged in.) Tj
+0 -12 Td
+(Steps: Enter gross salary, deductions, monthly expenses, and savings.) Tj
+0 -12 Td
+(Expected Result: Net salary updates dynamically and can be saved.) Tj
+0 -12 Td
+(Status: Pass if financial_profiles contains saved values.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 10: Investment Calculator Recommendation) Tj
+0 -12 Td
+(Objective: Confirm the calculator recommends a suitable bank.) Tj
+0 -12 Td
+(Precondition: Bank seed data exists.) Tj
+0 -12 Td
+(Steps: Enter plan name, amount, risk, horizon, liquidity, monthly contribution preference, and) Tj
+0 -12 Td
+(goal, then calculate.) Tj
+0 -12 Td
+(Expected Result: System displays recommended bank with expected return, contact details, and) Tj
+0 -12 Td
+(investment link.) Tj
+0 -12 Td
+(Status: Pass if recommendation is based on stored banks table data.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 11: Save Recommended Plan) Tj
+0 -12 Td
+(Objective: Confirm a recommendation can be saved.) Tj
+0 -12 Td
+(Precondition: Calculator has returned a recommendation.) Tj
+0 -12 Td
+(Steps: Click Save Plan.) Tj
+0 -12 Td
+(Expected Result: Plan is saved in investment_plans with bank_id and bank_investment_url.) Tj
+0 -12 Td
+(Status: Pass if plan appears in My Plans.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 12: My Plans View, Edit, Delete) Tj
+0 -12 Td
+(Objective: Confirm saved plans can be managed.) Tj
+0 -12 Td
+(Precondition: Client has at least one saved plan.) Tj
+0 -12 Td
+(Steps: Open My Plans, search/sort, view details, edit plan, delete plan.) Tj
+0 -12 Td
+(Expected Result: Table updates and database reflects changes.) Tj
+0 -12 Td
+(Status: Pass if actions work without affecting another user's plans.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 13: My Report) Tj
+0 -12 Td
+(Objective: Confirm client report displays financial profile and saved plans.) Tj
+0 -12 Td
+(Precondition: Client has finance data and saved plans.) Tj
+0 -12 Td
+(Steps: Open My Report.) Tj
+0 -12 Td
+(Expected Result: Report displays profile, financial overview, saved plans, provider data, and) Tj
+0 -12 Td
+(chart summaries.) Tj
+0 -12 Td
+(Status: Pass if report can be printed/exported.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 14: Admin Dashboard Analytics) Tj
+0 -12 Td
+(Objective: Confirm admin dashboard shows system metrics.) Tj
+0 -12 Td
+(Precondition: Admin is logged in.) Tj
+0 -12 Td
+(Steps: Open Admin Dashboard.) Tj
+0 -12 Td
+(Expected Result: Total users, total plans, total savings, risk distribution, and analytics) Tj
+0 -12 Td
+(cards display.) Tj
+0 -12 Td
+(Status: Pass if values match database data.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 15: Manage Users) Tj
+0 -12 Td
+(Objective: Confirm admin can manage users.) Tj
+0 -12 Td
+(Precondition: Admin is logged in and clients exist.) Tj
+0 -12 Td
+(Steps: Open Manage Users, search user, edit user, activate/deactivate user, reset password.) Tj
+0 -12 Td
+(Expected Result: Changes are saved and logged.) Tj
+0 -12 Td
+(Status: Pass if activity_logs records admin actions.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F1 8 Tf
+477 -702 Td
+(Page 2 of 3) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 2402 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart Test Cases) Tj
+/F1 9 Tf
+0 -24 Td
+(Test Case 16: Manage Providers/Banks) Tj
+0 -12 Td
+(Objective: Confirm admin can manage bank/provider records.) Tj
+0 -12 Td
+(Precondition: Admin is logged in.) Tj
+0 -12 Td
+(Steps: Add a new bank, edit expected return/contact details, delete or deactivate provider if) Tj
+0 -12 Td
+(available.) Tj
+0 -12 Td
+(Expected Result: Provider table updates and calculator can use the updated data.) Tj
+0 -12 Td
+(Status: Pass if banks table changes are correct.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 17: Bank Link in Saved Plans) Tj
+0 -12 Td
+(Objective: Confirm investment link is saved with the plan.) Tj
+0 -12 Td
+(Precondition: Recommendation has a bank website.) Tj
+0 -12 Td
+(Steps: Save a recommended plan, open My Plans, click or inspect provider link.) Tj
+0 -12 Td
+(Expected Result: The investment URL is visible and points to the bank investment page.) Tj
+0 -12 Td
+(Status: Pass if bank_investment_url is stored and shown.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 18: Role-Based Access Control) Tj
+0 -12 Td
+(Objective: Confirm clients cannot access admin pages.) Tj
+0 -12 Td
+(Precondition: Client is logged in.) Tj
+0 -12 Td
+(Steps: Attempt to open admin-dashboard.html or admin API actions.) Tj
+0 -12 Td
+(Expected Result: System blocks access or redirects to unauthorized page.) Tj
+0 -12 Td
+(Status: Pass if client cannot view admin data.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 19: Audit Trail) Tj
+0 -12 Td
+(Objective: Confirm important actions are logged.) Tj
+0 -12 Td
+(Precondition: User and admin actions have been performed.) Tj
+0 -12 Td
+(Steps: Check activity_logs table or Admin Activity view.) Tj
+0 -12 Td
+(Expected Result: Logs show action, entity type, user/admin, description, and timestamp.) Tj
+0 -12 Td
+(Status: Pass if logs are created for login, save, update, reset, and admin actions.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Test Case 20: Hosted Frontend with ngrok Backend) Tj
+0 -12 Td
+(Objective: Confirm deployed frontend connects to local backend.) Tj
+0 -12 Td
+(Precondition: XAMPP and ngrok are running and env.js contains ngrok API URL.) Tj
+0 -12 Td
+(Steps: Open deployed frontend, sign in, complete OTP, open dashboard.) Tj
+0 -12 Td
+(Expected Result: Frontend fetches backend data successfully.) Tj
+0 -12 Td
+(Status: Pass if no Failed to fetch or invalid JSON errors appear.) Tj
+0 -12 Td
+/F1 8 Tf
+477 -438 Td
+(Page 3 of 3) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R] /Count 3 >>
+endobj
+10 0 obj
+<< /Type /Catalog /Pages 9 0 R >>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000000160 00000 n 
+0000003795 00000 n 
+0000003931 00000 n 
+0000007455 00000 n 
+0000007591 00000 n 
+0000010045 00000 n 
+0000010181 00000 n 
+0000010250 00000 n 
+trailer
+<< /Size 11 /Root 10 0 R >>
+startxref
+10300
+%%EOF

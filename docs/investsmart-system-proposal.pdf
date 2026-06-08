@@ -1,0 +1,536 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+3 0 obj
+<< /Length 3557 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart System Proposal) Tj
+/F1 9 Tf
+0 -24 Td
+(Group V InvestSmart System Proposal) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(1. Project Title:) Tj
+/F1 9 Tf
+0 -12 Td
+(InvestSmart: A Financial Management and Investment Recommendation Web Application) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(2. Project Overview:) Tj
+/F1 9 Tf
+0 -12 Td
+(InvestSmart is a three-tier financial management web application designed to help users record) Tj
+0 -12 Td
+(their income, expenses, savings, and investment preferences, then receive suitable bank) Tj
+0 -12 Td
+(investment recommendations. The system includes a public home page, a single login and signup) Tj
+0 -12 Td
+(flow, client dashboards, admin dashboards, investment provider management, saved investment) Tj
+0 -12 Td
+(plans, reports, audit trails, OTP verification, and MySQL-backed data storage.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(The system is designed for a student project environment using HTML, CSS, JavaScript, PHP, and) Tj
+0 -12 Td
+(MySQL. The frontend and backend are separated into different files and layers so the project) Tj
+0 -12 Td
+(clearly demonstrates a three-tier architecture.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(3. Problem Statement:) Tj
+/F1 9 Tf
+0 -12 Td
+(Many users do not know which bank investment option suits their salary, savings, risk) Tj
+0 -12 Td
+(tolerance, liquidity preference, and investment goal. They may compare banks manually and make) Tj
+0 -12 Td
+(decisions without structured financial data. InvestSmart solves this by collecting the user's) Tj
+0 -12 Td
+(financial information, comparing it against stored bank investment criteria, and recommending) Tj
+0 -12 Td
+(the most suitable provider.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(4. Aim:) Tj
+/F1 9 Tf
+0 -12 Td
+(The aim of InvestSmart is to provide a simple, secure, and professional web-based system that) Tj
+0 -12 Td
+(helps users manage financial data and receive investment recommendations from stored) Tj
+0 -12 Td
+(bank/provider information.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(5. Objectives:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Allow users to register and sign in using one shared login page.) Tj
+0 -12 Td
+(- Verify logins using a demonstration OTP process.) Tj
+0 -12 Td
+(- Allow clients to capture and update their financial profile.) Tj
+0 -12 Td
+(- Calculate net salary automatically from gross salary, deductions, and expenses.) Tj
+0 -12 Td
+(- Recommend banks based on investment amount, risk, liquidity, horizon, monthly contribution,) Tj
+0 -12 Td
+(and goal.) Tj
+0 -12 Td
+(- Store recommended and saved investment plans.) Tj
+0 -12 Td
+(- Display user reports with profile, finances, plans, providers, and charts.) Tj
+0 -12 Td
+(- Allow administrators to manage users and bank/provider records.) Tj
+0 -12 Td
+(- Provide admin analytics and audit trail information.) Tj
+0 -12 Td
+(- Use MySQL tables with clear relationships and referential integrity.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(6. Scope of the System:) Tj
+/F1 9 Tf
+0 -12 Td
+/F2 9 Tf
+(Included:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Home page) Tj
+0 -12 Td
+(- Signup and login with OTP) Tj
+0 -12 Td
+(- Client dashboard) Tj
+0 -12 Td
+(- Profile management) Tj
+0 -12 Td
+(- My Finances) Tj
+0 -12 Td
+(- Investment Calculator) Tj
+0 -12 Td
+(- My Plans) Tj
+0 -12 Td
+(- My Report) Tj
+0 -12 Td
+(- Admin dashboard) Tj
+0 -12 Td
+(- Manage Users) Tj
+0 -12 Td
+(- Manage Providers/Banks) Tj
+0 -12 Td
+(- Admin Reports and analytics) Tj
+0 -12 Td
+(- Audit trail) Tj
+0 -12 Td
+(- Forgot password with on-screen OTP for school demonstration) Tj
+0 -12 Td
+/F1 8 Tf
+477 -702 Td
+(Page 1 of 4) Tj
+ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 11 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+5 0 obj
+<< /Length 3890 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart System Proposal) Tj
+/F1 9 Tf
+0 -24 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(Excluded for this version:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Real SMS/email OTP delivery) Tj
+0 -12 Td
+(- Online payment processing) Tj
+0 -12 Td
+(- Live bank API integration) Tj
+0 -12 Td
+(- Production hosting of the backend on a cloud server) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(7. Target Users:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Clients: normal users who want to manage finances and receive investment recommendations.) Tj
+0 -12 Td
+(- Administrators: system users who manage clients, banks/providers, reports, and audit) Tj
+0 -12 Td
+(information.) Tj
+0 -12 Td
+(- Lecturers/assessors: evaluators who inspect the system design, implementation, database, and) Tj
+0 -12 Td
+(test evidence.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(8. Three-Tier Architecture:) Tj
+/F1 9 Tf
+0 -12 Td
+/F2 9 Tf
+(Presentation Layer:) Tj
+/F1 9 Tf
+0 -12 Td
+(The frontend is built with HTML, CSS, and JavaScript. It handles the home page, forms,) Tj
+0 -12 Td
+(dashboards, tables, charts, and user interaction.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(Application Layer:) Tj
+/F1 9 Tf
+0 -12 Td
+(The backend is built with PHP. It handles validation, authentication, OTP generation,) Tj
+0 -12 Td
+(recommendation logic, CRUD operations, role checks, and API responses.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(Data Layer:) Tj
+/F1 9 Tf
+0 -12 Td
+(The database is MySQL. It stores users, clients, admins, financial profiles, banks, investment) Tj
+0 -12 Td
+(plans, audit logs, and OTP records.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(9. Main Functional Requirements:) Tj
+/F1 9 Tf
+0 -12 Td
+(- The system shall allow a new client to create an account.) Tj
+0 -12 Td
+(- The system shall allow both clients and admins to log in from the same login page.) Tj
+0 -12 Td
+(- The system shall request OTP verification after correct email and password.) Tj
+0 -12 Td
+(- The system shall route clients to the client dashboard and admins to the admin dashboard.) Tj
+0 -12 Td
+(- The system shall calculate net salary from salary inputs.) Tj
+0 -12 Td
+(- The system shall recommend investment banks using stored criteria.) Tj
+0 -12 Td
+(- The system shall store the selected bank website link in saved plans.) Tj
+0 -12 Td
+(- The system shall allow clients to view, edit, and delete saved plans.) Tj
+0 -12 Td
+(- The system shall allow administrators to manage bank/provider records.) Tj
+0 -12 Td
+(- The system shall allow administrators to activate/deactivate users.) Tj
+0 -12 Td
+(- The system shall record important actions in an audit trail.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(10. Non-Functional Requirements:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Usability: the interface must be clean, responsive, and professional.) Tj
+0 -12 Td
+(- Security: passwords must be hashed and protected routes must require authentication.) Tj
+0 -12 Td
+(- Maintainability: frontend, backend, and database scripts must be separated.) Tj
+0 -12 Td
+(- Reliability: database foreign keys must preserve relationship integrity.) Tj
+0 -12 Td
+(- Performance: pages should load quickly and API responses should return JSON.) Tj
+0 -12 Td
+(- Portability: the backend should run on XAMPP and the frontend can be hosted separately.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(11. Fully Attributed ERD / Data Dictionary:) Tj
+/F1 9 Tf
+0 -12 Td
+(Table: users) Tj
+0 -12 Td
+(Attributes: id INT PK AUTO_INCREMENT; email VARCHAR\(180\) UNIQUE NOT NULL; password_hash) Tj
+0 -12 Td
+(VARCHAR\(255\) NOT NULL; role ENUM\(client, admin\) DEFAULT client; status ENUM\(active, inactive\)) Tj
+0 -12 Td
+(DEFAULT active; created_at TIMESTAMP.) Tj
+0 -12 Td
+(Purpose: stores common login credentials and account state for all system users.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Table: clients) Tj
+0 -12 Td
+(Attributes: id INT PK AUTO_INCREMENT; user_id INT FK UNIQUE; full_name VARCHAR\(120\); surname) Tj
+0 -12 Td
+/F1 8 Tf
+477 -702 Td
+(Page 2 of 4) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 11 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 4358 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart System Proposal) Tj
+/F1 9 Tf
+0 -24 Td
+(VARCHAR\(120\); id_number VARCHAR\(20\) UNIQUE; contact_info VARCHAR\(180\); created_at TIMESTAMP.) Tj
+0 -12 Td
+(Purpose: stores normal user/client identity details linked to users.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Table: admins) Tj
+0 -12 Td
+(Attributes: id INT PK AUTO_INCREMENT; user_id INT FK UNIQUE; full_name VARCHAR\(120\); surname) Tj
+0 -12 Td
+(VARCHAR\(120\); employee_code VARCHAR\(40\) UNIQUE; contact_info VARCHAR\(180\); created_at) Tj
+0 -12 Td
+(TIMESTAMP.) Tj
+0 -12 Td
+(Purpose: stores administrator identity details linked to users.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Table: financial_profiles) Tj
+0 -12 Td
+(Attributes: id INT PK AUTO_INCREMENT; client_id INT FK UNIQUE; gross_salary DECIMAL\(12,2\);) Tj
+0 -12 Td
+(deductions DECIMAL\(12,2\); monthly_expenses DECIMAL\(12,2\); current_savings DECIMAL\(12,2\);) Tj
+0 -12 Td
+(net_salary DECIMAL\(12,2\); updated_at TIMESTAMP.) Tj
+0 -12 Td
+(Purpose: stores each client's financial profile.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Table: banks) Tj
+0 -12 Td
+(Attributes: id INT PK AUTO_INCREMENT; name VARCHAR\(160\); contact_info VARCHAR\(220\); website) Tj
+0 -12 Td
+(VARCHAR\(255\); plan_type VARCHAR\(80\); expected_return DECIMAL\(5,2\); risk ENUM\(Low, Medium,) Tj
+0 -12 Td
+(High\); liquidity ENUM\(High, Medium, Low\); horizon ENUM\(Short, Medium, Long\); allows_monthly) Tj
+0 -12 Td
+(TINYINT\(1\); details TEXT; created_by_admin_id INT FK NULL; created_at TIMESTAMP.) Tj
+0 -12 Td
+(Purpose: stores bank/provider investment options and recommendation criteria.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Table: investment_plans) Tj
+0 -12 Td
+(Attributes: id INT PK AUTO_INCREMENT; client_id INT FK; bank_id INT FK NULL; user_plan_name) Tj
+0 -12 Td
+(VARCHAR\(160\); investment_amount DECIMAL\(12,2\); monthly_contribution TINYINT\(1\); monthly_amount) Tj
+0 -12 Td
+(DECIMAL\(12,2\); investment_goal VARCHAR\(255\); risk ENUM\(Low, Medium, High\); liquidity) Tj
+0 -12 Td
+(ENUM\(High, Medium, Low\); horizon ENUM\(Short, Medium, Long\); expected_return DECIMAL\(5,2\);) Tj
+0 -12 Td
+(score INT; bank_investment_url VARCHAR\(255\); created_at TIMESTAMP; updated_at TIMESTAMP.) Tj
+0 -12 Td
+(Purpose: stores saved recommendations and client investment plans.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Table: activity_logs) Tj
+0 -12 Td
+(Attributes: id INT PK AUTO_INCREMENT; user_id INT FK NULL; client_id INT FK NULL; admin_id INT) Tj
+0 -12 Td
+(FK NULL; action VARCHAR\(80\); entity_type VARCHAR\(80\); entity_id INT NULL; description) Tj
+0 -12 Td
+(VARCHAR\(255\); created_at TIMESTAMP.) Tj
+0 -12 Td
+(Purpose: stores audit trail events for clients and administrators.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Table: auth_otps) Tj
+0 -12 Td
+(Attributes: id INT PK AUTO_INCREMENT; user_id INT FK; purpose ENUM\(login, password_reset\);) Tj
+0 -12 Td
+(otp_hash VARCHAR\(255\); attempts INT; expires_at DATETIME; used_at DATETIME NULL; created_at) Tj
+0 -12 Td
+(TIMESTAMP; index idx_auth_otps_user_purpose\(user_id, purpose, expires_at\).) Tj
+0 -12 Td
+(Purpose: stores hashed OTP records for login and password reset.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(12. ERD Relationships:) Tj
+/F1 9 Tf
+0 -12 Td
+(- users 1 to 0..1 clients: one user account can have one client profile.) Tj
+0 -12 Td
+(- users 1 to 0..1 admins: one user account can have one admin profile.) Tj
+0 -12 Td
+(- clients 1 to 0..1 financial_profiles: one client can have one financial profile.) Tj
+0 -12 Td
+(- clients 1 to many investment_plans: one client can save many plans.) Tj
+0 -12 Td
+(- banks 1 to many investment_plans: one bank can be recommended in many saved plans.) Tj
+0 -12 Td
+(- admins 1 to many banks: one admin can create or maintain many bank records.) Tj
+0 -12 Td
+(- users 1 to many auth_otps: one user can receive many OTP records over time.) Tj
+0 -12 Td
+(- users/clients/admins 1 to many activity_logs: actions are recorded for audit and) Tj
+0 -12 Td
+(accountability.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(13. Recommendation Logic Summary:) Tj
+/F1 9 Tf
+0 -12 Td
+(The calculator compares the user's selected risk, liquidity, horizon, monthly contribution) Tj
+0 -12 Td
+(preference, and investment amount against the bank/provider records. Matching criteria) Tj
+0 -12 Td
+(increase a recommendation score. The provider with the best score and suitable investment) Tj
+0 -12 Td
+/F1 8 Tf
+477 -702 Td
+(Page 3 of 4) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 11 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 1486 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart System Proposal) Tj
+/F1 9 Tf
+0 -24 Td
+(attributes is displayed to the user with expected return, contact details, and investment) Tj
+0 -12 Td
+(website link.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(14. Security Summary:) Tj
+/F1 9 Tf
+0 -12 Td
+(Passwords are hashed using PHP password_hash. Login requires email, password, and OTP) Tj
+0 -12 Td
+(verification. The OTP is shown on screen for school demonstration, but it is stored as a hash) Tj
+0 -12 Td
+(in the database. Protected backend actions require authentication tokens, and admin-only) Tj
+0 -12 Td
+(actions require role checking.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(15. Expected Deliverables:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Frontend source code) Tj
+0 -12 Td
+(- PHP backend source code) Tj
+0 -12 Td
+(- MySQL database script) Tj
+0 -12 Td
+(- ERD diagram and data dictionary) Tj
+0 -12 Td
+(- Installation/deployment guide) Tj
+0 -12 Td
+(- Test cases document) Tj
+0 -12 Td
+(- Security information document) Tj
+0 -12 Td
+(- Working demonstration using XAMPP, hosted frontend, and ngrok when required) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(16. Conclusion:) Tj
+/F1 9 Tf
+0 -12 Td
+(InvestSmart provides a complete student-level three-tier web application that combines) Tj
+0 -12 Td
+(financial profile management, investment recommendation, role-based administration, secure) Tj
+0 -12 Td
+(login, OTP demonstration, reporting, and database-driven decision support.) Tj
+0 -12 Td
+/F1 8 Tf
+477 -294 Td
+(Page 4 of 4) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 11 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R 10 0 R] /Count 4 >>
+endobj
+12 0 obj
+<< /Type /Catalog /Pages 11 0 R >>
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000000160 00000 n 
+0000003769 00000 n 
+0000003906 00000 n 
+0000007848 00000 n 
+0000007985 00000 n 
+0000012395 00000 n 
+0000012532 00000 n 
+0000014070 00000 n 
+0000014208 00000 n 
+0000014285 00000 n 
+trailer
+<< /Size 13 /Root 12 0 R >>
+startxref
+14336
+%%EOF

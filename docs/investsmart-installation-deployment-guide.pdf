@@ -1,0 +1,448 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+3 0 obj
+<< /Length 2743 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart Installation and Deployment Guide) Tj
+/F1 9 Tf
+0 -24 Td
+(InvestSmart Installation and Deployment Instructions) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(1. Required Software:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Visual Studio Code) Tj
+0 -12 Td
+(- XAMPP with Apache and MySQL) Tj
+0 -12 Td
+(- Web browser such as Chrome or Edge) Tj
+0 -12 Td
+(- Git) Tj
+0 -12 Td
+(- Optional: ngrok for connecting a hosted frontend to a backend running on a local machine) Tj
+0 -12 Td
+(- Optional: Vercel for frontend hosting) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(2. Project Folders:) Tj
+/F1 9 Tf
+0 -12 Td
+/F2 9 Tf
+(Recommended XAMPP location:) Tj
+/F1 9 Tf
+0 -12 Td
+(C:\\xampp\\htdocs\\investsmart) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(Main folders:) Tj
+/F1 9 Tf
+0 -12 Td
+(- public: frontend HTML, CSS, and JavaScript files) Tj
+0 -12 Td
+(- backend: PHP backend classes and API endpoint) Tj
+0 -12 Td
+(- database: MySQL schema and update scripts) Tj
+0 -12 Td
+(- docs: project documents, ERD, PDFs, and guides) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(3. Pulling the Project from GitHub:) Tj
+/F1 9 Tf
+0 -12 Td
+/F2 9 Tf
+(Open Command Prompt or Git Bash and run:) Tj
+/F1 9 Tf
+0 -12 Td
+() Tj
+0 -12 Td
+(cd C:\\xampp\\htdocs) Tj
+0 -12 Td
+(git clone https://github.com/Gorillmac/investsmart-backend.git investsmart) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(If the folder already exists:) Tj
+/F1 9 Tf
+0 -12 Td
+(cd C:\\xampp\\htdocs\\investsmart) Tj
+0 -12 Td
+(git pull origin main) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(4. Starting XAMPP:) Tj
+/F1 9 Tf
+0 -12 Td
+(1. Open XAMPP Control Panel.) Tj
+0 -12 Td
+(2. Start Apache.) Tj
+0 -12 Td
+(3. Start MySQL.) Tj
+0 -12 Td
+(4. Confirm Apache is running on http://127.0.0.1.) Tj
+0 -12 Td
+(5. Confirm phpMyAdmin opens at http://127.0.0.1/phpmyadmin.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(5. Creating the Database:) Tj
+/F1 9 Tf
+0 -12 Td
+(Method 1: phpMyAdmin) Tj
+0 -12 Td
+(1. Go to http://127.0.0.1/phpmyadmin.) Tj
+0 -12 Td
+(2. Create a database named investsmart.) Tj
+0 -12 Td
+(3. Select the investsmart database.) Tj
+0 -12 Td
+(4. Open the SQL tab.) Tj
+0 -12 Td
+(5. Copy and run database/schema.sql.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Method 2: Command Prompt) Tj
+0 -12 Td
+(cd C:\\xampp\\mysql\\bin) Tj
+0 -12 Td
+(mysql -u root) Tj
+0 -12 Td
+(CREATE DATABASE IF NOT EXISTS investsmart;) Tj
+0 -12 Td
+(USE investsmart;) Tj
+0 -12 Td
+(SOURCE C:/xampp/htdocs/investsmart/database/schema.sql;) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(6. Updating an Existing Database for OTP:) Tj
+/F1 9 Tf
+0 -12 Td
+/F2 9 Tf
+(If the database existed before OTP was added:) Tj
+/F1 9 Tf
+0 -12 Td
+(USE investsmart;) Tj
+0 -12 Td
+(SOURCE C:/xampp/htdocs/investsmart/database/update_otp_table.sql;) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F1 8 Tf
+477 -702 Td
+(Page 1 of 3) Tj
+ET
+endstream
+endobj
+4 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+5 0 obj
+<< /Length 3097 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart Installation and Deployment Guide) Tj
+/F1 9 Tf
+0 -24 Td
+/F2 9 Tf
+(7. Backend Configuration:) Tj
+/F1 9 Tf
+0 -12 Td
+/F2 9 Tf
+(Open backend/config.php and confirm:) Tj
+/F1 9 Tf
+0 -12 Td
+(- database host is 127.0.0.1 or localhost) Tj
+0 -12 Td
+(- database name is investsmart) Tj
+0 -12 Td
+(- username is root) Tj
+0 -12 Td
+(- password is blank for default XAMPP setup) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(8. Running the Backend Locally:) Tj
+/F1 9 Tf
+0 -12 Td
+(Start Apache and MySQL in XAMPP.) Tj
+0 -12 Td
+/F2 9 Tf
+(Open this API endpoint in the browser:) Tj
+/F1 9 Tf
+0 -12 Td
+(http://127.0.0.1/investsmart/backend/api/index.php) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(If the backend returns JSON or an API message, PHP is running.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(9. Running the Frontend Locally:) Tj
+/F1 9 Tf
+0 -12 Td
+/F2 9 Tf
+(Open:) Tj
+/F1 9 Tf
+0 -12 Td
+(http://127.0.0.1/investsmart/public/index.html) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(Use the home page to sign up or sign in.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(10. Default Admin Login:) Tj
+/F1 9 Tf
+0 -12 Td
+(Email: admin@investsmart.local) Tj
+0 -12 Td
+(Password: password) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+(After entering email and password, the system displays a demo OTP on the screen. Enter that) Tj
+0 -12 Td
+(OTP to complete login.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(11. Hosted Frontend with Local Backend:) Tj
+/F1 9 Tf
+0 -12 Td
+(This option is used when the frontend is deployed online, but the backend runs from a) Tj
+0 -12 Td
+(student's laptop using XAMPP.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(Steps:) Tj
+/F1 9 Tf
+0 -12 Td
+(1. Start Apache and MySQL in XAMPP.) Tj
+0 -12 Td
+/F2 9 Tf
+(2. Confirm backend works locally:) Tj
+/F1 9 Tf
+0 -12 Td
+(   http://127.0.0.1/investsmart/backend/api/index.php) Tj
+0 -12 Td
+/F2 9 Tf
+(3. Start ngrok:) Tj
+/F1 9 Tf
+0 -12 Td
+(   ngrok http 80) Tj
+0 -12 Td
+(4. Copy the HTTPS ngrok forwarding URL.) Tj
+0 -12 Td
+(5. Open public/assets/js/env.js in the hosted frontend project.) Tj
+0 -12 Td
+/F2 9 Tf
+(6. Set the API base URL like this:) Tj
+/F1 9 Tf
+0 -12 Td
+(   window.INVESTSMART_API_BASE = "https://YOUR-NGROK-LINK.ngrok-) Tj
+0 -12 Td
+(   free.app/investsmart/backend/api/index.php";) Tj
+0 -12 Td
+(7. Commit and redeploy the frontend.) Tj
+0 -12 Td
+(8. Test login from the deployed frontend.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(12. Important ngrok Notes:) Tj
+/F1 9 Tf
+0 -12 Td
+(- The ngrok URL changes unless a reserved domain is used.) Tj
+0 -12 Td
+(- If ngrok says the endpoint is offline, restart ngrok and update env.js.) Tj
+0 -12 Td
+(- Use HTTPS ngrok URL, not HTTP.) Tj
+0 -12 Td
+(- Keep XAMPP Apache and MySQL running while users test the hosted frontend.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(13. Frontend Deployment on Vercel:) Tj
+/F1 9 Tf
+0 -12 Td
+(1. Push the frontend files to GitHub.) Tj
+0 -12 Td
+(2. Import the frontend repository in Vercel.) Tj
+0 -12 Td
+(3. Deploy the project.) Tj
+0 -12 Td
+(4. Make sure public/assets/js/env.js points to the correct backend API URL.) Tj
+0 -12 Td
+(5. Redeploy after changing env.js.) Tj
+0 -12 Td
+/F1 8 Tf
+477 -702 Td
+(Page 2 of 3) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 1798 >>
+stream
+BT
+/F2 15 Tf
+42 812 Td
+(InvestSmart Installation and Deployment Guide) Tj
+/F1 9 Tf
+0 -24 Td
+(6. Hard refresh browser with Ctrl + F5 when testing.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(14. Troubleshooting:) Tj
+/F1 9 Tf
+0 -12 Td
+/F2 9 Tf
+(Failed to fetch:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Backend URL in env.js may be wrong.) Tj
+0 -12 Td
+(- ngrok may be offline.) Tj
+0 -12 Td
+(- Apache may be stopped.) Tj
+0 -12 Td
+(- CORS/backend may not be returning JSON.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(Invalid JSON:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Backend may be returning an HTML error page.) Tj
+0 -12 Td
+(- PHP error may be displayed instead of JSON.) Tj
+0 -12 Td
+(- API URL may point to the wrong folder.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(Cannot login:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Check that the database exists.) Tj
+0 -12 Td
+(- Check that schema.sql was run.) Tj
+0 -12 Td
+(- Check that auth_otps table exists.) Tj
+0 -12 Td
+(- Check admin email and password.) Tj
+0 -12 Td
+(- Check that OTP is entered after password login.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(Buttons not working:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Hard refresh with Ctrl + F5.) Tj
+0 -12 Td
+(- Confirm public/assets/js/auth.js is loaded.) Tj
+0 -12 Td
+(- Confirm public/assets/js/api.js has the correct API path.) Tj
+0 -12 Td
+() Tj
+0 -12 Td
+/F2 9 Tf
+(15. Final Submission Checklist:) Tj
+/F1 9 Tf
+0 -12 Td
+(- Backend code pushed to GitHub.) Tj
+0 -12 Td
+(- Frontend code pushed to GitHub.) Tj
+0 -12 Td
+(- Database schema included.) Tj
+0 -12 Td
+(- ERD included.) Tj
+0 -12 Td
+(- Proposal PDF included.) Tj
+0 -12 Td
+(- Installation/deployment PDF included.) Tj
+0 -12 Td
+(- Test cases PDF included.) Tj
+0 -12 Td
+(- Security information PDF included.) Tj
+0 -12 Td
+(- System tested using client and admin accounts.) Tj
+0 -12 Td
+/F1 8 Tf
+477 -450 Td
+(Page 3 of 3) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 9 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R] /Count 3 >>
+endobj
+10 0 obj
+<< /Type /Catalog /Pages 9 0 R >>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000000160 00000 n 
+0000002955 00000 n 
+0000003091 00000 n 
+0000006240 00000 n 
+0000006376 00000 n 
+0000008226 00000 n 
+0000008362 00000 n 
+0000008431 00000 n 
+trailer
+<< /Size 11 /Root 10 0 R >>
+startxref
+8481
+%%EOF
