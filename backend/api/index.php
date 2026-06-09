@@ -36,7 +36,7 @@ function actor_entity_id(array $user): int
     return (int)($user['client_id'] ?: $user['admin_id'] ?: $user['id']);
 }
 
-function create_demo_otp(PDO $pdo, int $userId, string $purpose): string
+function create_otp(PDO $pdo, int $userId, string $purpose): string
 {
     $otp = (string)random_int(100000, 999999);
 
@@ -54,34 +54,20 @@ function create_demo_otp(PDO $pdo, int $userId, string $purpose): string
 
 function deliver_otp(string $email, string $purpose, string $otp): array
 {
-    if (MAIL_ENABLED) {
-        try {
-            Mailer::sendOtp($email, $purpose, $otp, 10);
-            return [
-                'delivery' => 'email',
-                'message' => 'OTP sent to your email address. Enter the code to continue.',
-            ];
-        } catch (Throwable $exception) {
-            if (!OTP_DEMO_MODE) {
-                throw new RuntimeException('OTP email could not be sent. Please check the Gmail SMTP setup.');
-            }
-
-            return [
-                'delivery' => 'screen',
-                'message' => 'Email sending failed, so demo mode is showing the OTP on screen.',
-                'mail_error' => $exception->getMessage(),
-            ];
-        }
+    if (!MAIL_ENABLED) {
+        throw new RuntimeException('OTP email delivery is disabled. Please enable mail before deployment.');
     }
 
-    if (OTP_DEMO_MODE) {
-        return [
-            'delivery' => 'screen',
-            'message' => 'Demo OTP generated. Enter the OTP shown on screen to continue.',
-        ];
+    try {
+        Mailer::sendOtp($email, $purpose, $otp, 10);
+    } catch (Throwable $exception) {
+        throw new RuntimeException('OTP email could not be sent. Please check the Gmail SMTP setup.');
     }
 
-    throw new RuntimeException('OTP delivery is not configured. Enable email or demo mode.');
+    return [
+        'delivery' => 'email',
+        'message' => 'OTP sent to your email address. Enter the code to continue.',
+    ];
 }
 
 function otp_response_payload(string $email, string $purpose, string $otp): array
@@ -96,18 +82,10 @@ function otp_response_payload(string $email, string $purpose, string $otp): arra
         'message' => $delivery['message'],
     ];
 
-    if (OTP_DEMO_MODE || $delivery['delivery'] === 'screen') {
-        $payload['otp'] = $otp;
-    }
-
-    if (defined('APP_DEBUG') && APP_DEBUG && !empty($delivery['mail_error'])) {
-        $payload['mail_error'] = $delivery['mail_error'];
-    }
-
     return $payload;
 }
 
-function verify_demo_otp(PDO $pdo, int $userId, string $purpose, string $otp): void
+function verify_otp(PDO $pdo, int $userId, string $purpose, string $otp): void
 {
     $stmt = $pdo->prepare(
         'SELECT id, otp_hash, attempts
@@ -226,7 +204,7 @@ try {
                 error_response('This account is inactive. Please contact the administrator.', 403);
             }
 
-            $otp = create_demo_otp($pdo, (int)$user['id'], 'login');
+            $otp = create_otp($pdo, (int)$user['id'], 'login');
             Audit::log((int)$user['id'], 'login_otp_requested', (string)$user['role'], actor_entity_id($user), 'Login OTP generated for two-step sign in.');
 
             response(otp_response_payload((string)$user['email'], 'login', $otp));
@@ -240,7 +218,7 @@ try {
                 error_response('Invalid or expired OTP. Please sign in again.', 401);
             }
 
-            verify_demo_otp($pdo, (int)$user['id'], 'login', trim((string)$data['otp']));
+            verify_otp($pdo, (int)$user['id'], 'login', trim((string)$data['otp']));
             $token = issue_token($pdo, (int)$user['id']);
             Audit::log((int)$user['id'], 'login', (string)$user['role'], actor_entity_id($user), 'User signed in with OTP.');
 
@@ -259,7 +237,7 @@ try {
                 error_response('No active account was found for that email address.', 404);
             }
 
-            $otp = create_demo_otp($pdo, (int)$user['id'], 'password_reset');
+            $otp = create_otp($pdo, (int)$user['id'], 'password_reset');
             Audit::log((int)$user['id'], 'password_reset_otp_requested', (string)$user['role'], actor_entity_id($user), 'Password reset OTP generated.');
 
             $payload = otp_response_payload((string)$user['email'], 'password_reset', $otp);
@@ -283,7 +261,7 @@ try {
                 error_response('Invalid reset request. Please request a new OTP.', 401);
             }
 
-            verify_demo_otp($pdo, (int)$user['id'], 'password_reset', trim((string)$data['otp']));
+            verify_otp($pdo, (int)$user['id'], 'password_reset', trim((string)$data['otp']));
             $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?')->execute([
                 password_hash((string)$data['password'], PASSWORD_DEFAULT),
                 (int)$user['id'],

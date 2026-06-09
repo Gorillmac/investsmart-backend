@@ -23,8 +23,7 @@ define_if_missing('SESSION_NAME', 'investsmart_session');
 define_if_missing('APP_KEY', 'investsmart-local-dev-key-change-me');
 
 define_if_missing('APP_NAME', 'InvestSmart');
-define_if_missing('OTP_DEMO_MODE', true);
-define_if_missing('MAIL_ENABLED', false);
+define_if_missing('MAIL_ENABLED', true);
 define_if_missing('MAIL_FROM_EMAIL', 'investsmart.system@gmail.com');
 define_if_missing('MAIL_FROM_NAME', 'InvestSmart');
 define_if_missing('SMTP_HOST', 'smtp.gmail.com');

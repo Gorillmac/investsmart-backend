@@ -4,7 +4,6 @@ declare(strict_types=1);
 // Copy this file to backend/config.local.php on the machine running XAMPP.
 // Do not push backend/config.local.php to GitHub because it contains the Gmail app password.
 
-define('OTP_DEMO_MODE', false);
 define('MAIL_ENABLED', true);
 
 define('MAIL_FROM_EMAIL', 'investsmart.system@gmail.com');

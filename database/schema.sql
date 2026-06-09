@@ -111,13 +111,21 @@ CREATE TABLE IF NOT EXISTS auth_otps (
 );
 
 INSERT INTO users (email, password_hash, role, status)
-VALUES ('admin@investsmart.local', '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active')
-ON DUPLICATE KEY UPDATE email = email;
+VALUES
+('developer3214@outlook.com', '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active'),
+('paukomeni@gmail.com', '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active')
+ON DUPLICATE KEY UPDATE role = VALUES(role), status = VALUES(status), password_hash = VALUES(password_hash);
 
 INSERT INTO admins (user_id, full_name, surname, employee_code, contact_info)
-SELECT u.id, 'System', 'Admin', 'ADM-001', 'admin@investsmart.local'
+SELECT u.id, 'Developer', 'Admin', 'ADM-001', 'developer3214@outlook.com'
 FROM users u
-WHERE u.email = 'admin@investsmart.local'
+WHERE u.email = 'developer3214@outlook.com'
+  AND NOT EXISTS (SELECT 1 FROM admins a WHERE a.user_id = u.id);
+
+INSERT INTO admins (user_id, full_name, surname, employee_code, contact_info)
+SELECT u.id, 'Pau', 'Komeni', 'ADM-002', 'paukomeni@gmail.com'
+FROM users u
+WHERE u.email = 'paukomeni@gmail.com'
   AND NOT EXISTS (SELECT 1 FROM admins a WHERE a.user_id = u.id);
 
 INSERT INTO banks (name, contact_info, website, plan_type, expected_return, risk, liquidity, horizon, allows_monthly, details, created_by_admin_id) VALUES

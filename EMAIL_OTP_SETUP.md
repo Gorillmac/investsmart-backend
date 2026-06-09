@@ -1,9 +1,6 @@
 # InvestSmart Email OTP Setup
 
-This project supports two OTP modes:
-
-- **Demo mode:** OTP is shown on screen for school testing.
-- **Email mode:** OTP is sent to the user's email address through Gmail SMTP.
+This project sends OTP codes to the user's email address through Gmail SMTP.
 
 ## Gmail Account
 
@@ -33,10 +30,9 @@ define('SMTP_PASSWORD', 'paste_your_16_character_gmail_app_password_here');
 
 with the Gmail App Password.
 
-4. Keep:
+4. Confirm:
 
 ```php
-define('OTP_DEMO_MODE', false);
 define('MAIL_ENABLED', true);
 ```
 
@@ -47,10 +43,3 @@ define('MAIL_ENABLED', true);
 ## Important
 
 Do not push `backend/config.local.php` to GitHub. It is ignored by `.gitignore`.
-
-For lecturer testing without email, set:
-
-```php
-define('OTP_DEMO_MODE', true);
-define('MAIL_ENABLED', false);
-```
