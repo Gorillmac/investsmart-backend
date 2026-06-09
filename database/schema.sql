@@ -110,25 +110,39 @@ CREATE TABLE IF NOT EXISTS auth_otps (
   INDEX idx_auth_otps_user_purpose (user_id, purpose, expires_at)
 );
 
+DELETE old_user
+FROM users old_user
+JOIN users final_user ON final_user.email = 'developer3214@outlook.com'
+WHERE old_user.email = 'admin@investsmart.local';
+
+UPDATE users old_user
+LEFT JOIN users final_user ON final_user.email = 'developer3214@outlook.com'
+SET old_user.email = 'developer3214@outlook.com',
+    old_user.password_hash = '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.',
+    old_user.role = 'admin',
+    old_user.status = 'active'
+WHERE old_user.email = 'admin@investsmart.local'
+  AND final_user.id IS NULL;
+
+DELETE old_user
+FROM users old_user
+JOIN users final_user ON final_user.email = 'paulkomeni@gmail.com'
+WHERE old_user.email = 'paukomeni@gmail.com';
+
+UPDATE users old_user
+LEFT JOIN users final_user ON final_user.email = 'paulkomeni@gmail.com'
+SET old_user.email = 'paulkomeni@gmail.com',
+    old_user.password_hash = '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.',
+    old_user.role = 'admin',
+    old_user.status = 'active'
+WHERE old_user.email = 'paukomeni@gmail.com'
+  AND final_user.id IS NULL;
+
 INSERT INTO users (email, password_hash, role, status)
 VALUES
 ('developer3214@outlook.com', '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active'),
 ('paulkomeni@gmail.com', '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active')
 ON DUPLICATE KEY UPDATE role = VALUES(role), status = VALUES(status), password_hash = VALUES(password_hash);
-
-UPDATE users
-SET email = 'developer3214@outlook.com',
-    password_hash = '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.',
-    role = 'admin',
-    status = 'active'
-WHERE email = 'admin@investsmart.local';
-
-UPDATE users
-SET email = 'paulkomeni@gmail.com',
-    password_hash = '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.',
-    role = 'admin',
-    status = 'active'
-WHERE email = 'paukomeni@gmail.com';
 
 UPDATE admins a
 JOIN users u ON u.id = a.user_id

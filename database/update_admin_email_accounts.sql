@@ -3,19 +3,33 @@ USE investsmart;
 -- Deployment-ready admin accounts.
 -- Both accounts use the password: password
 
-UPDATE users
-SET email = 'developer3214@outlook.com',
-    password_hash = '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.',
-    role = 'admin',
-    status = 'active'
-WHERE email = 'admin@investsmart.local';
+DELETE old_user
+FROM users old_user
+JOIN users final_user ON final_user.email = 'developer3214@outlook.com'
+WHERE old_user.email = 'admin@investsmart.local';
 
-UPDATE users
-SET email = 'paulkomeni@gmail.com',
-    password_hash = '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.',
-    role = 'admin',
-    status = 'active'
-WHERE email = 'paukomeni@gmail.com';
+UPDATE users old_user
+LEFT JOIN users final_user ON final_user.email = 'developer3214@outlook.com'
+SET old_user.email = 'developer3214@outlook.com',
+    old_user.password_hash = '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.',
+    old_user.role = 'admin',
+    old_user.status = 'active'
+WHERE old_user.email = 'admin@investsmart.local'
+  AND final_user.id IS NULL;
+
+DELETE old_user
+FROM users old_user
+JOIN users final_user ON final_user.email = 'paulkomeni@gmail.com'
+WHERE old_user.email = 'paukomeni@gmail.com';
+
+UPDATE users old_user
+LEFT JOIN users final_user ON final_user.email = 'paulkomeni@gmail.com'
+SET old_user.email = 'paulkomeni@gmail.com',
+    old_user.password_hash = '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.',
+    old_user.role = 'admin',
+    old_user.status = 'active'
+WHERE old_user.email = 'paukomeni@gmail.com'
+  AND final_user.id IS NULL;
 
 INSERT INTO users (email, password_hash, role, status)
 VALUES
