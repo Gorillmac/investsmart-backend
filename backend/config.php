@@ -1,18 +1,41 @@
 <?php
 declare(strict_types=1);
 
-const DB_HOST = '127.0.0.1';
-const DB_NAME = 'investsmart';
-const DB_USER = 'root';
-const DB_PASS = '';
-const DB_CHARSET = 'utf8mb4';
+$localConfig = __DIR__ . '/config.local.php';
+if (is_file($localConfig)) {
+    require_once $localConfig;
+}
 
-const SESSION_NAME = 'investsmart_session';
-const APP_KEY = 'investsmart-local-dev-key-change-me';
+function define_if_missing(string $name, mixed $value): void
+{
+    if (!defined($name)) {
+        define($name, $value);
+    }
+}
+
+define_if_missing('DB_HOST', '127.0.0.1');
+define_if_missing('DB_NAME', 'investsmart');
+define_if_missing('DB_USER', 'root');
+define_if_missing('DB_PASS', '');
+define_if_missing('DB_CHARSET', 'utf8mb4');
+
+define_if_missing('SESSION_NAME', 'investsmart_session');
+define_if_missing('APP_KEY', 'investsmart-local-dev-key-change-me');
+
+define_if_missing('APP_NAME', 'InvestSmart');
+define_if_missing('OTP_DEMO_MODE', true);
+define_if_missing('MAIL_ENABLED', false);
+define_if_missing('MAIL_FROM_EMAIL', 'investsmart.system@gmail.com');
+define_if_missing('MAIL_FROM_NAME', 'InvestSmart');
+define_if_missing('SMTP_HOST', 'smtp.gmail.com');
+define_if_missing('SMTP_PORT', 587);
+define_if_missing('SMTP_USERNAME', 'investsmart.system@gmail.com');
+define_if_missing('SMTP_PASSWORD', '');
+define_if_missing('SMTP_TIMEOUT', 20);
 
 // Add your hosted frontend URL here when deployed, for example:
 // 'https://your-investsmart-site.netlify.app'
-const ALLOWED_ORIGINS = [
+define_if_missing('ALLOWED_ORIGINS', [
     'http://localhost',
     'http://127.0.0.1',
     'http://localhost:80',
@@ -26,7 +49,7 @@ const ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     'https://investsmart-frontend.vercel.app',
-];
+]);
 
 // Keep false for plain localhost development. Change to true when serving the backend through an HTTPS tunnel.
-const SESSION_SECURE_COOKIES = false;
+define_if_missing('SESSION_SECURE_COOKIES', false);

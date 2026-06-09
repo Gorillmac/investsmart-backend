@@ -6,6 +6,7 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../helpers.php';
 require_once __DIR__ . '/../Auth.php';
 require_once __DIR__ . '/../Audit.php';
+require_once __DIR__ . '/../Mailer.php';
 require_once __DIR__ . '/../RecommendationService.php';
 
 bootstrap_cors();
@@ -49,6 +50,61 @@ function create_demo_otp(PDO $pdo, int $userId, string $purpose): string
     $stmt->execute([$userId, $purpose, password_hash($otp, PASSWORD_DEFAULT)]);
 
     return $otp;
+}
+
+function deliver_otp(string $email, string $purpose, string $otp): array
+{
+    if (MAIL_ENABLED) {
+        try {
+            Mailer::sendOtp($email, $purpose, $otp, 10);
+            return [
+                'delivery' => 'email',
+                'message' => 'OTP sent to your email address. Enter the code to continue.',
+            ];
+        } catch (Throwable $exception) {
+            if (!OTP_DEMO_MODE) {
+                throw new RuntimeException('OTP email could not be sent. Please check the Gmail SMTP setup.');
+            }
+
+            return [
+                'delivery' => 'screen',
+                'message' => 'Email sending failed, so demo mode is showing the OTP on screen.',
+                'mail_error' => $exception->getMessage(),
+            ];
+        }
+    }
+
+    if (OTP_DEMO_MODE) {
+        return [
+            'delivery' => 'screen',
+            'message' => 'Demo OTP generated. Enter the OTP shown on screen to continue.',
+        ];
+    }
+
+    throw new RuntimeException('OTP delivery is not configured. Enable email or demo mode.');
+}
+
+function otp_response_payload(string $email, string $purpose, string $otp): array
+{
+    $delivery = deliver_otp($email, $purpose, $otp);
+    $payload = [
+        'ok' => true,
+        'otp_required' => true,
+        'email' => $email,
+        'otp_delivery' => $delivery['delivery'],
+        'expires_in_minutes' => 10,
+        'message' => $delivery['message'],
+    ];
+
+    if (OTP_DEMO_MODE || $delivery['delivery'] === 'screen') {
+        $payload['otp'] = $otp;
+    }
+
+    if (defined('APP_DEBUG') && APP_DEBUG && !empty($delivery['mail_error'])) {
+        $payload['mail_error'] = $delivery['mail_error'];
+    }
+
+    return $payload;
 }
 
 function verify_demo_otp(PDO $pdo, int $userId, string $purpose, string $otp): void
@@ -173,14 +229,7 @@ try {
             $otp = create_demo_otp($pdo, (int)$user['id'], 'login');
             Audit::log((int)$user['id'], 'login_otp_requested', (string)$user['role'], actor_entity_id($user), 'Login OTP generated for two-step sign in.');
 
-            response([
-                'ok' => true,
-                'otp_required' => true,
-                'email' => $user['email'],
-                'otp' => $otp,
-                'expires_in_minutes' => 10,
-                'message' => 'OTP generated. Enter the demo OTP shown on screen to continue.',
-            ]);
+            response(otp_response_payload((string)$user['email'], 'login', $otp));
 
         case 'verify-login-otp':
             require_method('POST');
@@ -213,13 +262,9 @@ try {
             $otp = create_demo_otp($pdo, (int)$user['id'], 'password_reset');
             Audit::log((int)$user['id'], 'password_reset_otp_requested', (string)$user['role'], actor_entity_id($user), 'Password reset OTP generated.');
 
-            response([
-                'ok' => true,
-                'email' => $user['email'],
-                'otp' => $otp,
-                'expires_in_minutes' => 10,
-                'message' => 'Password reset OTP generated. Enter the demo OTP shown on screen.',
-            ]);
+            $payload = otp_response_payload((string)$user['email'], 'password_reset', $otp);
+            unset($payload['otp_required']);
+            response($payload);
 
         case 'reset-password':
             require_method('POST');
