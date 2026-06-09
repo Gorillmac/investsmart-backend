@@ -74,7 +74,7 @@ try {
     $pdo->exec($sql);
 
     render_setup_page(
-        '<p>The InvestSmart database, tables, seed banks, and admin account were created successfully.</p>
+        '<p>The InvestSmart database, tables, seed banks, and admin accounts were created successfully.</p>
         <p>You can now open the application at <code>http://localhost/investsmart/public/index.html</code>.</p>
         <div class="actions">
           <a class="primary" href="public/index.html">Open InvestSmart</a>

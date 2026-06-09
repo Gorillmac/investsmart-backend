@@ -10,10 +10,17 @@ SET email = 'developer3214@outlook.com',
     status = 'active'
 WHERE email = 'admin@investsmart.local';
 
+UPDATE users
+SET email = 'paulkomeni@gmail.com',
+    password_hash = '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.',
+    role = 'admin',
+    status = 'active'
+WHERE email = 'paukomeni@gmail.com';
+
 INSERT INTO users (email, password_hash, role, status)
 VALUES
 ('developer3214@outlook.com', '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active'),
-('paukomeni@gmail.com', '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active')
+('paulkomeni@gmail.com', '$2y$10$Slg7oTxQIhPf5ltaabyL7.LeVLwxfh6s1WHavQwvwthhhO959nQG.', 'admin', 'active')
 ON DUPLICATE KEY UPDATE
   password_hash = VALUES(password_hash),
   role = VALUES(role),
@@ -23,13 +30,13 @@ INSERT INTO admins (user_id, full_name, surname, employee_code, contact_info)
 SELECT u.id, 'Developer', 'Admin', 'ADM-001', 'developer3214@outlook.com'
 FROM users u
 WHERE u.email = 'developer3214@outlook.com'
-  AND NOT EXISTS (SELECT 1 FROM admins a WHERE a.user_id = u.id);
+  AND NOT EXISTS (SELECT 1 FROM admins a WHERE a.user_id = u.id OR a.employee_code = 'ADM-001');
 
 INSERT INTO admins (user_id, full_name, surname, employee_code, contact_info)
-SELECT u.id, 'Pau', 'Komeni', 'ADM-002', 'paukomeni@gmail.com'
+SELECT u.id, 'Paul', 'Komeni', 'ADM-002', 'paulkomeni@gmail.com'
 FROM users u
-WHERE u.email = 'paukomeni@gmail.com'
-  AND NOT EXISTS (SELECT 1 FROM admins a WHERE a.user_id = u.id);
+WHERE u.email = 'paulkomeni@gmail.com'
+  AND NOT EXISTS (SELECT 1 FROM admins a WHERE a.user_id = u.id OR a.employee_code = 'ADM-002');
 
 UPDATE admins a
 JOIN users u ON u.id = a.user_id
@@ -41,8 +48,8 @@ WHERE u.email = 'developer3214@outlook.com';
 
 UPDATE admins a
 JOIN users u ON u.id = a.user_id
-SET a.full_name = 'Pau',
+SET a.full_name = 'Paul',
     a.surname = 'Komeni',
     a.employee_code = 'ADM-002',
-    a.contact_info = 'paukomeni@gmail.com'
-WHERE u.email = 'paukomeni@gmail.com';
+    a.contact_info = 'paulkomeni@gmail.com'
+WHERE u.email = 'paulkomeni@gmail.com';
