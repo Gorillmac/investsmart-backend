@@ -172,11 +172,19 @@ FROM users u
 WHERE u.email = 'paulkomeni@gmail.com'
   AND NOT EXISTS (SELECT 1 FROM admins a WHERE a.user_id = u.id OR a.employee_code = 'ADM-002');
 
+SET @seed_admin_id := (
+  SELECT a.id
+  FROM admins a
+  JOIN users u ON u.id = a.user_id
+  WHERE u.email = 'developer3214@outlook.com'
+  LIMIT 1
+);
+
 INSERT INTO banks (name, contact_info, website, plan_type, expected_return, risk, liquidity, horizon, allows_monthly, details, created_by_admin_id) VALUES
-('Standard Bank', 'investments@standardbank.co.za | 0860 123 000', 'https://www.standardbank.co.za/southafrica/personal/products-and-services/grow-your-money/investment-solutions/digital-save-and-invest', 'Fixed Plan', 7.20, 'Low', 'Low', 'Short', 0, 'Fixed-term investment option for users who prefer capital stability and predictable returns.', 1),
-('FNB', 'invest@fnb.co.za | 087 575 9404', 'https://www.fnb.co.za/for-me/save-and-invest.html', 'Flexi Plan', 8.35, 'Low', 'High', 'Short', 1, 'Flexible savings and investment access with recurring contribution support.', 1),
-('Nedbank', 'wealth@nedbank.co.za | 0800 555 111', 'https://personal.nedbank.co.za/private-clients/invest/invest-with-us.html', 'Retirement/Income Plan', 9.40, 'Medium', 'Low', 'Long', 1, 'Long-term retirement and income-focused solution for balanced investors.', 1),
-('Absa', 'investment@absa.co.za | 0860 111 515', 'https://www.absa.co.za/personal/investment-management/investment-accounts/', 'Growth Plan', 12.60, 'Medium', 'Medium', 'Medium', 1, 'Balanced growth investment for users seeking moderate risk and medium-term returns.', 1),
-('Capitec', 'invest@capitecbank.co.za | 0860 102 043', 'https://www.capitecbank.co.za/personal/save/', 'Flexi Plan', 8.75, 'Medium', 'High', 'Short', 1, 'Simple flexible investment structure with accessible monthly contribution options for users who can accept moderate risk.', 1),
-('Investec', 'wealth@investec.co.za | 0860 443 443', 'https://www.investec.com/en_za/focus/investing/how-to-save-and-invest.html', 'Equity Plan', 15.80, 'High', 'High', 'Long', 0, 'Higher-growth equity-linked investment option for users with long horizons and higher risk tolerance.', 1)
+('Standard Bank', 'investments@standardbank.co.za | 0860 123 000', 'https://www.standardbank.co.za/southafrica/personal/products-and-services/grow-your-money/investment-solutions/digital-save-and-invest', 'Fixed Plan', 7.20, 'Low', 'Low', 'Short', 0, 'Fixed-term investment option for users who prefer capital stability and predictable returns.', @seed_admin_id),
+('FNB', 'invest@fnb.co.za | 087 575 9404', 'https://www.fnb.co.za/for-me/save-and-invest.html', 'Flexi Plan', 8.35, 'Low', 'High', 'Short', 1, 'Flexible savings and investment access with recurring contribution support.', @seed_admin_id),
+('Nedbank', 'wealth@nedbank.co.za | 0800 555 111', 'https://personal.nedbank.co.za/private-clients/invest/invest-with-us.html', 'Retirement/Income Plan', 9.40, 'Medium', 'Low', 'Long', 1, 'Long-term retirement and income-focused solution for balanced investors.', @seed_admin_id),
+('Absa', 'investment@absa.co.za | 0860 111 515', 'https://www.absa.co.za/personal/investment-management/investment-accounts/', 'Growth Plan', 12.60, 'Medium', 'Medium', 'Medium', 1, 'Balanced growth investment for users seeking moderate risk and medium-term returns.', @seed_admin_id),
+('Capitec', 'invest@capitecbank.co.za | 0860 102 043', 'https://www.capitecbank.co.za/personal/save/', 'Flexi Plan', 8.75, 'Medium', 'High', 'Short', 1, 'Simple flexible investment structure with accessible monthly contribution options for users who can accept moderate risk.', @seed_admin_id),
+('Investec', 'wealth@investec.co.za | 0860 443 443', 'https://www.investec.com/en_za/focus/investing/how-to-save-and-invest.html', 'Equity Plan', 15.80, 'High', 'High', 'Long', 0, 'Higher-growth equity-linked investment option for users with long horizons and higher risk tolerance.', @seed_admin_id)
 ON DUPLICATE KEY UPDATE website = VALUES(website), contact_info = VALUES(contact_info), details = VALUES(details), expected_return = VALUES(expected_return);
